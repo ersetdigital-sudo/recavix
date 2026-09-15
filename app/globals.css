@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/*
+ * Brand design tokens.
+ * Preserved 1:1 from the original static site so the visual identity
+ * (mint / green / peach / cream palette) stays intact.
+ */
+@theme {
+  --color-page: #cfe0c8;
+  --color-mint: #e8f3e4;
+  --color-mint-2: #cfe6c6;
+  --color-green: #8fc08a;
+  --color-green-d: #4f7a4a;
+  --color-green-dd: #3f6a3b;
+  --color-peach: #f7cdb8;
+  --color-peach-2: #fbe3d6;
+  --color-cream: #fdfaf3;
+  --color-ink: #3b4a3a;
+  --color-coral: #c9705a;
+  --color-coral-dark: #a8553e;
+  --color-amber: #e8a33d;
+  --color-line: #e3b39c;
+
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+  --font-display: var(--font-baloo), system-ui, cursive;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-green-d);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Grid paper backdrop used across every page. */
+  .grid-bg {
+    background-color: var(--color-cream);
+    background-image:
+      linear-gradient(rgba(143, 192, 138, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(143, 192, 138, 0.2) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  /* Soft "stacked paper" shadow shared by cards. */
+  .card-shadow {
+    box-shadow:
+      0 2px 0 rgba(79, 122, 74, 0.25),
+      0 8px 20px rgba(79, 122, 74, 0.12);
+  }
+
+  /* Custom checkbox: native input restyled, no extra wrapper element needed. */
+  .chk {
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-green-d);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .chk:checked {
+    background: var(--color-green-d);
+  }
+
+  .chk:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  /* Sidebar filter checkbox row (checked state + hover). */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(79, 122, 74, 0.35);
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .filter-row:hover {
+    background: var(--color-mint);
+  }
+
+  .filter-row.on {
+    background: var(--color-green);
+    border-color: var(--color-green-d);
+    color: #fff;
+  }
+
+  .filter-row.on .chk {
+    border-color: #fff;
+  }
+
+  .filter-row.on .chk:checked {
+    background: #fff;
+  }
+
+  .filter-row.on .chk:checked::after {
+    border-color: var(--color-green-d);
+  }
+
+  /* Shared form field styling. */
+  .field {
+    width: 100%;
+    border: 1.5px solid var(--color-mint-2);
+    border-radius: 11px;
+    padding: 10px 12px;
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 14px;
+    outline: none;
+  }
+
+  .field:focus {
+    border-color: var(--color-green-d);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
