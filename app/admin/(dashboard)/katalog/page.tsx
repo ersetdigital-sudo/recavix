@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { saveGames } from "@/app/admin/actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ComingSoonToggle } from "@/components/admin/ComingSoonToggle";
 import { NewGameButton } from "@/components/admin/NewGameButton";
 import { Icon } from "@/components/ui/Icon";
 import { getCatalogSnapshot } from "@/lib/catalog/store";
@@ -25,7 +26,7 @@ export default async function AdminCatalogPage() {
         title="Katalog"
         description={`${activeCount} game tampil di situs${
           hiddenCount > 0 ? `, ${hiddenCount} disembunyikan` : ""
-        }. Klik “Kelola” untuk mengubah nama, kategori, ikon, atau menyembunyikannya.`}
+        }. Klik tag status di tiap baris untuk membuka atau menutup penjualan game, atau “Kelola” untuk mengubah detailnya.`}
         action={<NewGameButton games={games} action={saveGames} />}
       />
 
@@ -37,7 +38,7 @@ export default async function AdminCatalogPage() {
 
       <div className="card-shadow overflow-hidden rounded-2xl border border-mint-2 bg-white">
         <ul className="divide-y divide-mint-2">
-          {games.map((game) => (
+          {games.map((game, index) => (
             <li
               key={game.slug}
               className={cn(
@@ -72,6 +73,8 @@ export default async function AdminCatalogPage() {
               ) : null}
 
               <div className="ml-auto" />
+
+              <ComingSoonToggle games={games} gameIndex={index} action={saveGames} />
 
               <Link
                 href={`/admin/katalog/${game.slug}`}

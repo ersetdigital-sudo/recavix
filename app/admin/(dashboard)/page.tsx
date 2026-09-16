@@ -129,7 +129,14 @@ export default async function AdminDashboardPage() {
               {pricingRows.map((row) => (
                 <li key={row.game.slug} className="flex items-center gap-3 px-5 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-bold">{row.game.name}</p>
+                    <p className="truncate text-xs font-bold">
+                      {row.game.name}
+                      {row.game.comingSoon ? (
+                        <span className="ml-1 font-semibold text-green-d opacity-80">
+                          · Segera hadir
+                        </span>
+                      ) : null}
+                    </p>
                     <p className="text-[11px] opacity-60">{row.count} nominal</p>
                   </div>
                   <span className="ml-auto text-xs font-bold text-green-d">

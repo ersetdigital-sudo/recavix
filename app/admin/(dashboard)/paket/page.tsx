@@ -69,7 +69,7 @@ export default async function AdminPacksPage({ searchParams }: PageProps) {
     <>
       <AdminPageHeader
         title="Paket Diamond"
-        description="Harga diatur per game. Pilih game dulu, lalu ubah nominal, harga, dan badge-nya."
+        description="Harga diatur per game. Pilih game dulu, lalu ubah nominal, harga, dan badge-nya. Game bertanda “Segera hadir” belum bisa dibeli, jadi harganya belum dipakai di checkout."
       />
 
       {error ? (
@@ -101,6 +101,9 @@ export default async function AdminPacksPage({ searchParams }: PageProps) {
                   )}
                 >
                   {game.name}
+                  {game.comingSoon ? (
+                    <span className="ml-1 font-semibold opacity-70">· Segera hadir</span>
+                  ) : null}
                 </Link>
               );
             })}
