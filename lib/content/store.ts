@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 
-import { CONTENT_TAG } from "@/lib/cache";
+import { CACHE_EPOCH, CONTENT_TAG } from "@/lib/cache";
 import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase/config";
 import type { EditableSettings, SiteContent, SiteSettings, StoredContent } from "@/types";
 
@@ -81,7 +81,7 @@ export async function getContentSnapshot(): Promise<ContentSnapshot> {
  */
 export const getSiteContent = unstable_cache(
   async (): Promise<SiteContent> => withRuntimeSettings(await getStoredContent()),
-  ["recavix-site-content"],
+  ["recavix-site-content", CACHE_EPOCH],
   { tags: [CONTENT_TAG] },
 );
 

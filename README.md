@@ -236,7 +236,9 @@ dan diubah lewat **dashboard admin** di `/admin`. Semua konten presentasi ikut p
   Paket diamond di-key `(game_slug, id)`, jadi daftar harga tiap game berdiri sendiri; game yang
   belum diatur admin memakai isi bawaan.
   Halaman publik membacanya lewat `unstable_cache` bertag, lalu di-invalidasi dengan
-  `revalidateTag` setiap admin menyimpan — jadi halaman tetap bisa di-prerender.
+  `revalidateTag` setiap admin menyimpan — jadi halaman tetap bisa di-prerender. Kunci cache-nya
+  juga memuat `CACHE_EPOCH` (id deployment Vercel), supaya deployment baru tidak mewarisi cache
+  deployment sebelumnya.
 - **Checkout memakai seluruh katalog aktif.** Tidak ada daftar game terpisah yang di-hardcode,
   jadi game yang ditambahkan atau diaktifkan admin langsung bisa dibeli di `/topup`. Ikon game
   yang belum diunggah jatuh ke `GAME_IMAGE_FALLBACK` di `lib/media.ts`.

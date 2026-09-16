@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 
-import { CONTENT_TAG } from "@/lib/cache";
+import { CACHE_EPOCH, CONTENT_TAG } from "@/lib/cache";
 import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase/config";
 import type { CatalogGame, CatalogPack, GameCategory, GamePlatform } from "@/types";
 
@@ -116,7 +116,7 @@ export const getCachedCatalog = unstable_cache(
 
     return { games: activeGames, packsByGame };
   },
-  ["recavix-catalog"],
+  ["recavix-catalog", CACHE_EPOCH],
   { tags: [CONTENT_TAG] },
 );
 

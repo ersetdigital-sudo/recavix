@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 
-import { CONTENT_TAG } from "@/lib/cache";
+import { CACHE_EPOCH, CONTENT_TAG } from "@/lib/cache";
 import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase/config";
 import type { PaymentMethod } from "@/types";
 
@@ -97,7 +97,7 @@ export const getCachedPaymentMethods = unstable_cache(
     const { methods } = await getPaymentSnapshot();
     return methods.filter((method) => method.isActive);
   },
-  ["recavix-payment-methods"],
+  ["recavix-payment-methods", CACHE_EPOCH],
   { tags: [CONTENT_TAG] },
 );
 
