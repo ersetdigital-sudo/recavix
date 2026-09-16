@@ -8,7 +8,7 @@ import { FilterRow } from "@/components/ui/FilterRow";
 import { GameCard } from "@/components/ui/GameCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
+import { availableCategories, availablePlatforms } from "@/data/games";
 import { cn } from "@/lib/cn";
 import { toggleInSet } from "@/lib/collections";
 import type { CatalogGame, GameCategory, GamePlatform, HeroSlide } from "@/types";
@@ -21,12 +21,15 @@ interface HomeExplorerProps {
 }
 
 export function HomeExplorer({ games, heroSlides }: HomeExplorerProps) {
-  const [categories, setCategories] = useState<Set<GameCategory>>(
-    () => new Set<GameCategory>(["Moba Game"]),
-  );
+  // Tanpa filter terpilih, beranda langsung menampilkan seluruh game aktif.
+  const [categories, setCategories] = useState<Set<GameCategory>>(() => new Set<GameCategory>());
   const [platforms, setPlatforms] = useState<Set<GamePlatform>>(
     () => new Set<GamePlatform>(),
   );
+
+  // Pilihan filter mengikuti isi katalog — kategori kosong tidak ikut tampil.
+  const categoryOptions = useMemo(() => availableCategories(games), [games]);
+  const platformOptions = useMemo(() => availablePlatforms(games), [games]);
 
   const filtered = useMemo(
     () =>
@@ -47,7 +50,7 @@ export function HomeExplorer({ games, heroSlides }: HomeExplorerProps) {
         <SectionCard className="p-4">
           <h3 className="mb-3 text-[19px] font-extrabold">Categories</h3>
           <div className="flex flex-col gap-2">
-            {GAME_CATEGORIES.map((category) => (
+            {categoryOptions.map((category) => (
               <FilterRow
                 key={category}
                 label={category}
@@ -59,7 +62,7 @@ export function HomeExplorer({ games, heroSlides }: HomeExplorerProps) {
 
           <h3 className="mb-3 mt-6 text-[19px] font-extrabold">Platforms</h3>
           <div className="flex flex-col gap-2">
-            {GAME_PLATFORMS.map((platform) => (
+            {platformOptions.map((platform) => (
               <FilterRow
                 key={platform}
                 label={platform}
@@ -75,7 +78,7 @@ export function HomeExplorer({ games, heroSlides }: HomeExplorerProps) {
         <HeroCarousel slides={heroSlides} />
 
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-          {GAME_CATEGORIES.map((category) => {
+          {categoryOptions.map((category) => {
             const active = categories.has(category);
             return (
               <button

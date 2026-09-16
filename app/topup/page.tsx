@@ -6,7 +6,6 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TopupFlow } from "@/components/topup/TopupFlow";
-import { CHECKOUT_GAME_SLUGS } from "@/data/games";
 import { readActiveGames, readActivePacksByGame } from "@/lib/catalog/store";
 import { getSiteContent } from "@/lib/content/store";
 import { getCachedPaymentMethods } from "@/lib/payments/store";
@@ -32,19 +31,15 @@ export default async function TopupPage() {
     getSiteContent(),
   ]);
 
-  // Hanya game pilihan yang muncul di selector checkout, dan hanya yang aktif.
-  const checkoutGames = games.filter((game) =>
-    (CHECKOUT_GAME_SLUGS as readonly string[]).includes(game.slug),
-  );
-
-  // Paket dikirim per game — harga tiap game diatur sendiri di dashboard.
+  // Semua game aktif bisa dibeli — game yang ditambahkan dari dashboard langsung
+  // muncul di sini. Paket dikirim per game karena harga tiap game diatur sendiri.
   const checkoutPacks = Object.fromEntries(
-    checkoutGames.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
+    games.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
   );
 
   const allPacks = Object.values(checkoutPacks).flat();
   const prices = allPacks.map((pack) => pack.price);
-  const available = checkoutGames.length > 0 && allPacks.length > 0 && methods.length > 0;
+  const available = games.length > 0 && allPacks.length > 0 && methods.length > 0;
 
   return (
     <>
@@ -82,7 +77,7 @@ export default async function TopupPage() {
 
           {available ? (
             <TopupFlow
-              games={checkoutGames}
+              games={games}
               packsByGame={checkoutPacks}
               methods={methods}
               promos={content.promoCodes}

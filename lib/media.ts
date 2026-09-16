@@ -14,3 +14,9 @@ export const HERO_BANNER_ASPECT = "aspect-[1584/672]";
 
 /** `sizes` hint for next/image, matching the widest content container. */
 export const HERO_BANNER_SIZES = "(max-width: 1440px) 100vw, 1440px";
+
+/**
+ * Ikon pengganti untuk game yang belum punya gambarnya sendiri — mis. game baru
+ * yang ditambahkan dari dashboard sebelum ikonnya diunggah.
+ */
+export const GAME_IMAGE_FALLBACK = "/icons/icon-192.png";

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
+import { GAME_IMAGE_FALLBACK } from "@/lib/media";
 import type { ActionResult, CatalogGame } from "@/types";
 
 interface NewGameButtonProps {
@@ -24,7 +25,7 @@ export function NewGameButton({ games, action }: NewGameButtonProps) {
       name: "Game Baru",
       category: GAME_CATEGORIES[0],
       platform: GAME_PLATFORMS[0],
-      image: "/images/games/placeholder.png",
+      image: GAME_IMAGE_FALLBACK,
       rating: 5,
       isActive: false,
       sortOrder: games.length,

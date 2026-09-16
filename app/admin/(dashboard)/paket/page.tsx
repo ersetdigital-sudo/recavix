@@ -3,7 +3,6 @@ import Link from "next/link";
 import { savePacks } from "@/app/admin/actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { RepeatableEditor, type FieldDef } from "@/components/admin/fields";
-import { CHECKOUT_GAME_SLUGS } from "@/data/games";
 import { getCatalogSnapshot, packsForGame } from "@/lib/catalog/store";
 import { cn } from "@/lib/cn";
 import type { CatalogPack } from "@/types";
@@ -62,14 +61,8 @@ export default async function AdminPacksPage({ searchParams }: PageProps) {
     getCatalogSnapshot(),
   ]);
 
-  const activeGames = games.filter((game) => game.isActive);
-  const checkoutGames = activeGames.filter((game) =>
-    (CHECKOUT_GAME_SLUGS as readonly string[]).includes(game.slug),
-  );
-
-  // Game yang muncul di checkout didahulukan karena hanya itu yang bisa dibeli.
-  // Kalau belum ada satu pun, semua game aktif ditampilkan supaya tetap bisa diatur.
-  const choices = checkoutGames.length > 0 ? checkoutGames : activeGames;
+  // Semua game aktif bisa dijual, jadi semuanya bisa diatur di sini.
+  const choices = games.filter((game) => game.isActive);
   const selected = choices.find((game) => game.slug === requested) ?? choices[0] ?? null;
 
   return (

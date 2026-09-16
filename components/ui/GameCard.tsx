@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { StarRating } from "@/components/ui/StarRating";
+import { GAME_IMAGE_FALLBACK } from "@/lib/media";
 import type { Game } from "@/types";
 
 interface GameCardProps {
@@ -18,7 +19,7 @@ export function GameCard({ game, showMeta = false, href = "/topup" }: GameCardPr
       className="group block rounded-2xl border-[1.5px] border-peach bg-white p-2.5 transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(79,122,74,0.18)]"
     >
       <Image
-        src={game.image}
+        src={game.image || GAME_IMAGE_FALLBACK}
         alt={`Ikon game ${game.name}`}
         width={320}
         height={320}

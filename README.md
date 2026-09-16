@@ -2,7 +2,7 @@
 
 **Top up diamond, gems & voucher game — harga termurah, proses otomatis 24 jam.**
 
-Platform top-up game untuk pasar Indonesia. Katalog 28 game populer, alur checkout 4 langkah,
+Platform top-up game untuk pasar Indonesia. Katalog 6 game populer, alur checkout 4 langkah,
 kalkulator promo, dan pelacak status transaksi — semuanya dibangun sebagai web app modern
 dengan Next.js App Router, animasi halus, dan SEO teknis yang lengkap.
 
@@ -19,8 +19,10 @@ dengan Next.js App Router, animasi halus, dan SEO teknis yang lengkap.
 
 ## ✨ Fitur
 
-- **Katalog 28 game** — Mobile Legends, Genshin Impact, PUBG Mobile, Free Fire, Dota 2,
-  Honkai Star Rail, dan lainnya; terbagi dalam **7 kategori** dan **6 platform**.
+- **Katalog 6 game** — PUBG Mobile, Mobile Legends, Free Fire, Magic Chess, Honor of Kings,
+  dan Roblox. Menambah game dari dashboard langsung membuatnya bisa dijual.
+- **Filter mengikuti katalog** — beranda dan katalog hanya menampilkan kategori/platform yang
+  benar-benar dipakai, jadi tidak ada filter kosong yang terlihat seperti game hilang.
 - **Pencarian & filter real-time** — cari berdasarkan nama, saring dengan kombinasi
   kategori + platform secara bersamaan, lengkap dengan hitungan hasil dan empty state.
 - **Carousel promo otomatis** — 4 slide banner yang berganti tiap 3,5 detik, berhenti
@@ -168,7 +170,7 @@ Ada di `/admin`. Yang bisa dikelola pada versi ini:
 | --- | --- |
 | **Ringkasan** | Nilai pesanan masuk, antrian verifikasi, game aktif, paket diamond, metode bayar, daftar harga paket, game tersembunyi, dan tombol kembalikan ke isi awal. |
 | **Pesanan** | Filter per status, detail tiap pesanan, dan pengubahan status. |
-| **Katalog** | 28 game — tambah, sembunyikan tanpa menghapus, buka editor per game (nama, slug, kategori, platform, rating, ikon). |
+| **Katalog** | Daftar game yang dijual — tombol **+ Tambah game**, sembunyikan tanpa menghapus, dan editor per game (nama, slug, kategori, platform, rating, ikon). Game baru langsung muncul di beranda, katalog, dan selector checkout. |
 | **Paket Diamond** | Pilih game dulu, lalu atur nominal, harga, badge, urutan, dan aktif/nonaktif paket game itu. Harga tiap game berdiri sendiri. |
 | **Pembayaran** | Nama, warna/kode chip, tipe (QRIS atau transfer), nomor tujuan, gambar QR, logo, instruksi, dan aktif/nonaktif. |
 | **Banner Hero** | Slide carousel beranda — gambar, alt text, link tujuan, dan urutan. |
@@ -235,6 +237,9 @@ dan diubah lewat **dashboard admin** di `/admin`. Semua konten presentasi ikut p
   belum diatur admin memakai isi bawaan.
   Halaman publik membacanya lewat `unstable_cache` bertag, lalu di-invalidasi dengan
   `revalidateTag` setiap admin menyimpan — jadi halaman tetap bisa di-prerender.
+- **Checkout memakai seluruh katalog aktif.** Tidak ada daftar game terpisah yang di-hardcode,
+  jadi game yang ditambahkan atau diaktifkan admin langsung bisa dibeli di `/topup`. Ikon game
+  yang belum diunggah jatuh ke `GAME_IMAGE_FALLBACK` di `lib/media.ts`.
 - Konten presentasi (identitas brand, kontak, media sosial, menu, slide banner, FAQ, ulasan,
   kode promo) disimpan sebagai **satu dokumen JSON** di tabel `site_content`, dengan `id = 'main'`.
   Tidak ada yang perlu meng-query "semua ulasan where…", jadi tidak perlu tabel sendiri.

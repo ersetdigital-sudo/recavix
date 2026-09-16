@@ -10,6 +10,7 @@ import { PaymentMethodGrid } from "@/components/topup/PaymentMethodGrid";
 import { StepCard } from "@/components/topup/StepCard";
 import { StarRating } from "@/components/ui/StarRating";
 import { cn } from "@/lib/cn";
+import { GAME_IMAGE_FALLBACK } from "@/lib/media";
 import { createCheckoutOrder } from "@/lib/orders/actions";
 import type { CatalogGame, CatalogPack, PaymentMethod, PromoCode } from "@/types";
 
@@ -119,7 +120,7 @@ export function TopupFlow({ games, packsByGame, methods, promos }: TopupFlowProp
     <div>
       <div className="card-shadow mb-6 flex flex-wrap items-center gap-4 rounded-2xl border border-mint-2 bg-white p-4">
         <Image
-          src={game.image}
+          src={game.image || GAME_IMAGE_FALLBACK}
           alt={`Ikon game ${game.name}`}
           width={72}
           height={72}

@@ -4,7 +4,6 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Metric } from "@/components/admin/Metric";
 import { ResetContentButton } from "@/components/admin/ResetContentButton";
 import { Icon } from "@/components/ui/Icon";
-import { CHECKOUT_GAME_SLUGS } from "@/data/games";
 import { getCatalogSnapshot, packsForGame } from "@/lib/catalog/store";
 import { formatRupiah } from "@/lib/format";
 import { getOrderStats } from "@/lib/orders/store";
@@ -31,19 +30,16 @@ export default async function AdminDashboardPage() {
   const hiddenGames = games.filter((game) => !game.isActive);
   const activeMethods = payments.methods.filter((method) => method.isActive);
 
-  // Harga diatur per game, jadi ringkasannya pun per game — dan hanya game yang
-  // muncul di checkout, karena hanya itu yang bisa dibeli pembeli.
-  const pricingRows = activeGames
-    .filter((game) => (CHECKOUT_GAME_SLUGS as readonly string[]).includes(game.slug))
-    .map((game) => {
-      const gamePacks = packsForGame(catalog.packs, game.slug).filter((pack) => pack.isActive);
-      const cheapest = gamePacks.reduce<number | null>(
-        (min, pack) => (min === null || pack.price < min ? pack.price : min),
-        null,
-      );
+  // Harga diatur per game, jadi ringkasannya pun per game.
+  const pricingRows = activeGames.map((game) => {
+    const gamePacks = packsForGame(catalog.packs, game.slug).filter((pack) => pack.isActive);
+    const cheapest = gamePacks.reduce<number | null>(
+      (min, pack) => (min === null || pack.price < min ? pack.price : min),
+      null,
+    );
 
-      return { game, count: gamePacks.length, cheapest };
-    });
+    return { game, count: gamePacks.length, cheapest };
+  });
 
   const checkoutPackCount = pricingRows.reduce((total, row) => total + row.count, 0);
 
