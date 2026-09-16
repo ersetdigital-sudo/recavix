@@ -15,9 +15,19 @@ export const DEFAULT_GAMES: CatalogGame[] = games.map((game, index) => ({
   sortOrder: index,
 }));
 
-export const DEFAULT_PACKS: CatalogPack[] = diamondPacks.map((pack, index) => ({
-  ...pack,
-  id: `pack-${pack.diamonds}`,
-  isActive: true,
-  sortOrder: index,
-}));
+/**
+ * Paket bawaan untuk satu game.
+ *
+ * Dipakai selama game itu belum punya baris sendiri di `diamond_packs`, dan
+ * jadi titik awal editor di `/admin/paket` supaya admin tidak mulai dari kosong.
+ * Daftar nominalnya sama untuk semua game; harganya tinggal diubah per game.
+ */
+export function defaultPacksFor(gameSlug: string): CatalogPack[] {
+  return diamondPacks.map((pack, index) => ({
+    ...pack,
+    id: `pack-${pack.diamonds}`,
+    gameSlug,
+    isActive: true,
+    sortOrder: index,
+  }));
+}

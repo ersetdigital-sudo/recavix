@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TopupFlow } from "@/components/topup/TopupFlow";
 import { CHECKOUT_GAME_SLUGS } from "@/data/games";
-import { readActiveGames, readActivePacks } from "@/lib/catalog/store";
+import { readActiveGames, readActivePacksByGame } from "@/lib/catalog/store";
 import { getSiteContent } from "@/lib/content/store";
 import { getCachedPaymentMethods } from "@/lib/payments/store";
 import { breadcrumbJsonLd, createMetadata, productJsonLd } from "@/lib/seo";
@@ -25,9 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TopupPage() {
-  const [games, packs, methods, content] = await Promise.all([
+  const [games, packsByGame, methods, content] = await Promise.all([
     readActiveGames(),
-    readActivePacks(),
+    readActivePacksByGame(),
     getCachedPaymentMethods(),
     getSiteContent(),
   ]);
@@ -37,8 +37,14 @@ export default async function TopupPage() {
     (CHECKOUT_GAME_SLUGS as readonly string[]).includes(game.slug),
   );
 
-  const prices = packs.map((pack) => pack.price);
-  const available = checkoutGames.length > 0 && packs.length > 0 && methods.length > 0;
+  // Paket dikirim per game — harga tiap game diatur sendiri di dashboard.
+  const checkoutPacks = Object.fromEntries(
+    checkoutGames.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
+  );
+
+  const allPacks = Object.values(checkoutPacks).flat();
+  const prices = allPacks.map((pack) => pack.price);
+  const available = checkoutGames.length > 0 && allPacks.length > 0 && methods.length > 0;
 
   return (
     <>
@@ -58,7 +64,7 @@ export default async function TopupPage() {
           image: "/images/games/mobile-legends.png",
           lowPrice: prices.length > 0 ? Math.min(...prices) : 0,
           highPrice: prices.length > 0 ? Math.max(...prices) : 0,
-          offerCount: packs.length,
+          offerCount: allPacks.length,
         })}
       />
 
@@ -77,7 +83,7 @@ export default async function TopupPage() {
           {available ? (
             <TopupFlow
               games={checkoutGames}
-              packs={packs}
+              packsByGame={checkoutPacks}
               methods={methods}
               promos={content.promoCodes}
             />

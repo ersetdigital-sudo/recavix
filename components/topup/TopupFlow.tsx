@@ -16,8 +16,8 @@ import type { CatalogGame, CatalogPack, PaymentMethod, PromoCode } from "@/types
 interface TopupFlowProps {
   /** Game yang boleh dipilih di checkout — sudah disaring dari katalog aktif. */
   games: CatalogGame[];
-  /** Paket diamond aktif. */
-  packs: CatalogPack[];
+  /** Paket diamond aktif per slug game — harga tiap game diatur sendiri di dashboard. */
+  packsByGame: Record<string, CatalogPack[]>;
   /** Metode pembayaran aktif. */
   methods: PaymentMethod[];
   /**
@@ -27,7 +27,7 @@ interface TopupFlowProps {
   promos: PromoCode[];
 }
 
-export function TopupFlow({ games, packs, methods, promos }: TopupFlowProps) {
+export function TopupFlow({ games, packsByGame, methods, promos }: TopupFlowProps) {
   const router = useRouter();
 
   const [gameSlug, setGameSlug] = useState(games[0]?.slug ?? "");
@@ -45,6 +45,8 @@ export function TopupFlow({ games, packs, methods, promos }: TopupFlowProps) {
   const [pending, startTransition] = useTransition();
 
   const game = games.find((item) => item.slug === gameSlug) ?? games[0];
+  // Nominal mengikuti game yang dipilih — tiap game punya daftar paketnya sendiri.
+  const packs = packsByGame[game.slug] ?? [];
   const pack = packIndex === null ? null : packs[packIndex];
   const payment = methods.find((method) => method.id === paymentId) ?? null;
 
@@ -138,7 +140,11 @@ export function TopupFlow({ games, packs, methods, promos }: TopupFlowProps) {
           <select
             id="game-select"
             value={gameSlug}
-            onChange={(event) => setGameSlug(event.target.value)}
+            onChange={(event) => {
+              setGameSlug(event.target.value);
+              // Nominal game sebelumnya tidak berlaku untuk game yang baru.
+              setPackIndex(null);
+            }}
             className="field max-w-[220px]"
           >
             {games.map((item) => (
@@ -189,7 +195,13 @@ export function TopupFlow({ games, packs, methods, promos }: TopupFlowProps) {
           </StepCard>
 
           <StepCard step={2} title="Pilih Nominal Diamond">
-            <DiamondPackGrid packs={packs} selectedIndex={packIndex} onSelect={setPackIndex} />
+            {packs.length === 0 ? (
+              <p className="text-sm opacity-70">
+                Nominal untuk game ini belum tersedia. Pilih game lain dulu.
+              </p>
+            ) : (
+              <DiamondPackGrid packs={packs} selectedIndex={packIndex} onSelect={setPackIndex} />
+            )}
           </StepCard>
 
           <StepCard step={3} title="Metode Pembayaran">

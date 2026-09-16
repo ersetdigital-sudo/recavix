@@ -84,7 +84,12 @@ function normalizeGame(raw: unknown, index: number): CatalogGame | null {
   };
 }
 
-function normalizePack(raw: unknown, index: number, usedIds: Set<string>): CatalogPack | null {
+function normalizePack(
+  raw: unknown,
+  index: number,
+  usedIds: Set<string>,
+  gameSlug: string,
+): CatalogPack | null {
   if (!isPlainObject(raw)) return null;
 
   const diamonds = Math.round(num(raw.diamonds));
@@ -103,6 +108,7 @@ function normalizePack(raw: unknown, index: number, usedIds: Set<string>): Catal
 
   return {
     id,
+    gameSlug,
     diamonds,
     price: Math.max(0, Math.round(num(raw.price))),
     tag: tag || undefined,
@@ -194,13 +200,16 @@ export async function saveGames(games: CatalogGame[]): Promise<ActionResult> {
 }
 
 /** Simpan seluruh daftar paket diamond. */
-export async function savePacks(packs: CatalogPack[]): Promise<ActionResult> {
+export async function savePacks(gameSlug: string, packs: CatalogPack[]): Promise<ActionResult> {
   if (!(await isAuthorized())) return UNAUTHORIZED;
+
+  const slug = slugify(text(gameSlug));
+  if (!slug) return { ok: false, message: "Game tidak valid." };
   if (!Array.isArray(packs)) return { ok: false, message: "Data paket tidak valid." };
 
   const usedIds = new Set<string>();
   const normalized = packs
-    .map((pack, index) => normalizePack(pack, index, usedIds))
+    .map((pack, index) => normalizePack(pack, index, usedIds, slug))
     .filter((pack): pack is CatalogPack => pack !== null);
 
   const skipped = packs.length - normalized.length;
@@ -210,7 +219,7 @@ export async function savePacks(packs: CatalogPack[]): Promise<ActionResult> {
   }
 
   try {
-    await writePacks(normalized);
+    await writePacks(slug, normalized);
     refreshPublicPages();
     revalidatePath("/admin/paket");
     return {

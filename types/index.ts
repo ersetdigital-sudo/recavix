@@ -38,9 +38,11 @@ export interface CatalogGame extends Game {
   sortOrder: number;
 }
 
-/** Paket diamond seperti yang tersimpan di katalog. */
+/** Paket diamond seperti yang tersimpan di katalog — selalu milik satu game. */
 export interface CatalogPack extends DiamondPack {
   id: string;
+  /** Slug game pemilik paket ini. Harga diatur per game. */
+  gameSlug: string;
   isActive: boolean;
   sortOrder: number;
 }

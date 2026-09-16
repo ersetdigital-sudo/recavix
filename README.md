@@ -27,7 +27,8 @@ dengan Next.js App Router, animasi halus, dan SEO teknis yang lengkap.
   saat di-hover/focus, bisa dikontrol manual lewat tombol prev/next dan dot.
 - **Alur checkout 4 langkah** — isi data akun (User ID + Zone ID) → pilih nominal →
   pilih metode pembayaran → kontak & kode promo, dengan ringkasan pesanan *sticky*.
-- **14 nominal diamond** (Rp 1.500 – Rp 520.000) dengan badge **HEMAT / POPULER / BEST VALUE**.
+- **Harga per game** — tiap game punya daftar paket diamond sendiri (nominal, harga, badge),
+  jadi Mobile Legends dan Dota 2 bisa punya harga yang berbeda.
 - **6 metode pembayaran** — QRIS, GoPay, DANA, OVO, ShopeePay, dan Transfer Bank BCA.
 - **Kode promo berfungsi** — `GEMS10` (diskon 10%) dan `NEWBIE5` (diskon 5%). Daftarnya diatur
   dari dashboard, dan **server selalu menghitung ulang diskonnya** saat pesanan dibuat sehingga
@@ -168,7 +169,7 @@ Ada di `/admin`. Yang bisa dikelola pada versi ini:
 | **Ringkasan** | Nilai pesanan masuk, antrian verifikasi, game aktif, paket diamond, metode bayar, daftar harga paket, game tersembunyi, dan tombol kembalikan ke isi awal. |
 | **Pesanan** | Filter per status, detail tiap pesanan, dan pengubahan status. |
 | **Katalog** | 28 game — tambah, sembunyikan tanpa menghapus, buka editor per game (nama, slug, kategori, platform, rating, ikon). |
-| **Paket Diamond** | Nominal, harga, badge, urutan, dan aktif/nonaktif tiap paket. |
+| **Paket Diamond** | Pilih game dulu, lalu atur nominal, harga, badge, urutan, dan aktif/nonaktif paket game itu. Harga tiap game berdiri sendiri. |
 | **Pembayaran** | Nama, warna/kode chip, tipe (QRIS atau transfer), nomor tujuan, gambar QR, logo, instruksi, dan aktif/nonaktif. |
 | **Banner Hero** | Slide carousel beranda — gambar, alt text, link tujuan, dan urutan. |
 | **Ulasan & FAQ** | Ulasan pelanggan di beranda, dan pertanyaan umum (accordion + JSON-LD `FAQPage`). |
@@ -230,6 +231,8 @@ Katalog game dan metode pembayaran kini datang dari **Supabase** (Postgres lewat
 dan diubah lewat **dashboard admin** di `/admin`. Semua konten presentasi ikut pindah ke sana.
 
 - Katalog (`games`, `diamond_packs`) dan metode pembayaran disimpan sebagai baris di Postgres.
+  Paket diamond di-key `(game_slug, id)`, jadi daftar harga tiap game berdiri sendiri; game yang
+  belum diatur admin memakai isi bawaan.
   Halaman publik membacanya lewat `unstable_cache` bertag, lalu di-invalidasi dengan
   `revalidateTag` setiap admin menyimpan — jadi halaman tetap bisa di-prerender.
 - Konten presentasi (identitas brand, kontak, media sosial, menu, slide banner, FAQ, ulasan,
@@ -250,7 +253,8 @@ dan diubah lewat **dashboard admin** di `/admin`. Semua konten presentasi ikut p
 - **Pesanan tersimpan sungguhan** di tabel `orders`. Pembeli diarahkan ke
   `/pembayaran/<invoice>`, dan statusnya bisa dilacak di `/cek-transaksi`.
 - **Harga tidak pernah dikirim dari browser.** Klien hanya mengirim slug game, id paket, dan
-  id metode; server mencari harga aslinya di database lalu menghitung diskon dan totalnya.
+  id metode; server mencari harga aslinya di daftar paket **milik game itu** lalu menghitung
+  diskon dan totalnya. Paket dengan id sama di game berbeda tidak bisa saling ditukar.
 - **Verifikasi pembayaran masih manual.** Belum ada payment gateway — pembeli menandai
   “Saya Sudah Bayar”, lalu admin mencocokkan mutasi dan mengubah statusnya.
 
@@ -277,11 +281,28 @@ ke camelCase di `lib/*/store.ts`.
 | `sort_order` | integer | Urutan tampil |
 | `updated_at` | timestamptz | |
 
-**`diamond_packs`** — primary key `id`
+**`diamond_packs`** — primary key gabungan (`game_slug`, `id`)
+
+Harga diatur **per game**: satu game punya satu daftar paket sendiri. Selama sebuah game belum
+punya baris di tabel ini, game itu memakai nominal dan harga bawaan dari
+`data/diamond-packs.ts` — jadi tabelnya boleh dibiarkan kosong.
+
+Kalau tabel `diamond_packs` sudah ada dari versi sebelumnya, ubah sekali di SQL Editor:
+
+```sql
+alter table public.diamond_packs add column if not exists game_slug text;
+alter table public.diamond_packs alter column game_slug set not null;
+alter table public.diamond_packs drop constraint if exists diamond_packs_pkey;
+alter table public.diamond_packs add constraint diamond_packs_pkey primary key (game_slug, id);
+```
+
+Baris `set not null` hanya berhasil kalau tabelnya kosong. Kalau sudah ada baris lama, isi dulu
+`game_slug`-nya atau hapus barisnya sebelum menjalankan baris berikutnya.
 
 | Kolom | Tipe | Catatan |
 | --- | --- | --- |
-| `id` | text | **Primary key** |
+| `game_slug` | text | **Bagian dari primary key.** Slug game pemilik paket |
+| `id` | text | **Bagian dari primary key.** Contoh `pack-86`; cukup unik di dalam satu game |
 | `diamonds` | integer | Jumlah nominal |
 | `price` | integer | Rupiah, angka penuh tanpa titik |
 | `tag` | text | Nullable. Badge seperti `HEMAT` / `POPULER` |

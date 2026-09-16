@@ -4,7 +4,7 @@ import { CONTENT_TAG } from "@/lib/cache";
 import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase/config";
 import type { CatalogGame, CatalogPack, GameCategory, GamePlatform } from "@/types";
 
-import { DEFAULT_GAMES, DEFAULT_PACKS } from "./defaults";
+import { DEFAULT_GAMES, defaultPacksFor } from "./defaults";
 
 interface GameRow {
   slug: string;
@@ -19,6 +19,7 @@ interface GameRow {
 
 interface PackRow {
   id: string;
+  game_slug: string;
   diamonds: number;
   price: number;
   tag: string | null;
@@ -40,6 +41,7 @@ const toGame = (row: GameRow): CatalogGame => ({
 
 const toPack = (row: PackRow): CatalogPack => ({
   id: row.id,
+  gameSlug: row.game_slug,
   diamonds: row.diamonds,
   price: row.price,
   tag: row.tag ?? undefined,
@@ -57,32 +59,42 @@ export interface CatalogSnapshot {
 /** Selalu membaca sumber terbaru — untuk halaman admin yang tidak boleh kena cache. */
 export async function getCatalogSnapshot(): Promise<CatalogSnapshot> {
   if (!isSupabaseConfigured()) {
-    return { games: DEFAULT_GAMES, packs: DEFAULT_PACKS, error: null };
+    return { games: DEFAULT_GAMES, packs: [], error: null };
   }
 
   try {
     const [gamesResponse, packsResponse] = await Promise.all([
       supabaseFetch("games?select=*&order=sort_order.asc"),
-      supabaseFetch("diamond_packs?select=*&order=sort_order.asc"),
+      supabaseFetch("diamond_packs?select=*&order=game_slug.asc,sort_order.asc"),
     ]);
 
     const gameRows = (await gamesResponse.json()) as GameRow[];
-    const packRows = (await packsResponse.json()) as PackRow[];
+    // Baris lama yang belum punya game_slug dilewati supaya tidak muncul di
+    // daftar game mana pun — paket sekarang selalu milik satu game.
+    const packRows = ((await packsResponse.json()) as PackRow[]).filter((row) =>
+      Boolean(row.game_slug),
+    );
 
     return {
       // Tabel kosong berarti admin belum pernah menyimpan — pakai isi bawaan.
       games: gameRows.length > 0 ? gameRows.map(toGame) : DEFAULT_GAMES,
-      packs: packRows.length > 0 ? packRows.map(toPack) : DEFAULT_PACKS,
+      packs: packRows.map(toPack),
       error: null,
     };
   } catch (error) {
     console.error("[katalog] gagal dibaca:", error);
     return {
       games: DEFAULT_GAMES,
-      packs: DEFAULT_PACKS,
+      packs: [],
       error: "Katalog gagal dimuat dari penyimpanan.",
     };
   }
+}
+
+/** Paket yang benar-benar dipakai satu game: baris tersimpan, atau bawaan kalau belum ada. */
+export function packsForGame(packs: CatalogPack[], gameSlug: string): CatalogPack[] {
+  const saved = packs.filter((pack) => pack.gameSlug === gameSlug);
+  return saved.length > 0 ? saved : defaultPacksFor(gameSlug);
 }
 
 /**
@@ -92,10 +104,17 @@ export async function getCatalogSnapshot(): Promise<CatalogSnapshot> {
 export const getCachedCatalog = unstable_cache(
   async () => {
     const { games, packs } = await getCatalogSnapshot();
-    return {
-      games: games.filter((game) => game.isActive),
-      packs: packs.filter((pack) => pack.isActive),
-    };
+    const activeGames = games.filter((game) => game.isActive);
+    const activePacks = packs.filter((pack) => pack.isActive);
+
+    // Paket dikelompokkan per game supaya checkout cukup membaca milik game
+    // yang sedang dipilih, bukan seluruh katalog.
+    const packsByGame: Record<string, CatalogPack[]> = {};
+    for (const game of activeGames) {
+      packsByGame[game.slug] = packsForGame(activePacks, game.slug);
+    }
+
+    return { games: activeGames, packsByGame };
   },
   ["recavix-catalog"],
   { tags: [CONTENT_TAG] },
@@ -105,8 +124,14 @@ export async function readActiveGames(): Promise<CatalogGame[]> {
   return (await getCachedCatalog()).games;
 }
 
-export async function readActivePacks(): Promise<CatalogPack[]> {
-  return (await getCachedCatalog()).packs;
+/** Paket aktif milik satu game — dipakai checkout dan pembuatan pesanan. */
+export async function readActivePacks(gameSlug: string): Promise<CatalogPack[]> {
+  return (await getCachedCatalog()).packsByGame[gameSlug] ?? [];
+}
+
+/** Semua paket aktif, dikelompokkan per slug game. */
+export async function readActivePacksByGame(): Promise<Record<string, CatalogPack[]>> {
+  return (await getCachedCatalog()).packsByGame;
 }
 
 /**
@@ -140,9 +165,10 @@ export async function writeGames(games: CatalogGame[]): Promise<void> {
   await supabaseFetch(`games?select=slug${notIn}`, { method: "DELETE" });
 }
 
-export async function writePacks(packs: CatalogPack[]): Promise<void> {
+export async function writePacks(gameSlug: string, packs: CatalogPack[]): Promise<void> {
   const rows = packs.map((pack, index) => ({
     id: pack.id,
+    game_slug: gameSlug,
     diamonds: pack.diamonds,
     price: pack.price,
     tag: pack.tag ?? null,
@@ -159,7 +185,11 @@ export async function writePacks(packs: CatalogPack[]): Promise<void> {
     });
   }
 
+  // Hapus paket game ini yang sudah tidak ada di daftar — game lain tidak disentuh.
   const keep = packs.map((pack) => pack.id);
   const notIn = keep.length > 0 ? `&id=not.in.(${keep.join(",")})` : "";
-  await supabaseFetch(`diamond_packs?select=id${notIn}`, { method: "DELETE" });
+  await supabaseFetch(
+    `diamond_packs?select=id&game_slug=eq.${encodeURIComponent(gameSlug)}${notIn}`,
+    { method: "DELETE" },
+  );
 }

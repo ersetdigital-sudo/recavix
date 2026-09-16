@@ -38,9 +38,8 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
   if (!accountId) return { ok: false, message: "User ID wajib diisi." };
 
   try {
-    const [games, packs, payments, content] = await Promise.all([
+    const [games, payments, content] = await Promise.all([
       readActiveGames(),
-      readActivePacks(),
       getPaymentSnapshot(),
       getStoredContent(),
     ]);
@@ -50,7 +49,8 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
     const game = games.find((entry) => entry.slug === input.gameSlug);
     if (!game) return { ok: false, message: "Game tidak ditemukan atau sudah tidak aktif." };
 
-    const pack = packs.find((entry) => entry.id === input.packId);
+    // Harga dicari dari daftar paket milik game itu sendiri, bukan game lain.
+    const pack = (await readActivePacks(game.slug)).find((entry) => entry.id === input.packId);
     if (!pack) return { ok: false, message: "Nominal tidak ditemukan. Pilih ulang." };
 
     const payment = payments.methods.find(

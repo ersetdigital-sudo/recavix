@@ -4,7 +4,8 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Metric } from "@/components/admin/Metric";
 import { ResetContentButton } from "@/components/admin/ResetContentButton";
 import { Icon } from "@/components/ui/Icon";
-import { getCatalogSnapshot } from "@/lib/catalog/store";
+import { CHECKOUT_GAME_SLUGS } from "@/data/games";
+import { getCatalogSnapshot, packsForGame } from "@/lib/catalog/store";
 import { formatRupiah } from "@/lib/format";
 import { getOrderStats } from "@/lib/orders/store";
 import { getPaymentSnapshot } from "@/lib/payments/store";
@@ -30,10 +31,21 @@ export default async function AdminDashboardPage() {
   const hiddenGames = games.filter((game) => !game.isActive);
   const activeMethods = payments.methods.filter((method) => method.isActive);
 
-  const cheapest = catalog.packs.reduce<number | null>(
-    (min, pack) => (min === null || pack.price < min ? pack.price : min),
-    null,
-  );
+  // Harga diatur per game, jadi ringkasannya pun per game — dan hanya game yang
+  // muncul di checkout, karena hanya itu yang bisa dibeli pembeli.
+  const pricingRows = activeGames
+    .filter((game) => (CHECKOUT_GAME_SLUGS as readonly string[]).includes(game.slug))
+    .map((game) => {
+      const gamePacks = packsForGame(catalog.packs, game.slug).filter((pack) => pack.isActive);
+      const cheapest = gamePacks.reduce<number | null>(
+        (min, pack) => (min === null || pack.price < min ? pack.price : min),
+        null,
+      );
+
+      return { game, count: gamePacks.length, cheapest };
+    });
+
+  const checkoutPackCount = pricingRows.reduce((total, row) => total + row.count, 0);
 
   return (
     <>
@@ -89,9 +101,9 @@ export default async function AdminDashboardPage() {
         />
         <Metric
           label="Paket diamond"
-          value={catalog.packs.length}
+          value={checkoutPackCount}
           icon="gem"
-          hint={cheapest === null ? "belum ada paket" : `mulai ${formatRupiah(cheapest)}`}
+          hint={pricingRows.length === 0 ? "belum ada game checkout" : `di ${pricingRows.length} game`}
         />
         <Metric
           label="Metode bayar"
@@ -112,23 +124,31 @@ export default async function AdminDashboardPage() {
               Kelola
             </Link>
           </header>
-          <ul className="divide-y divide-mint-2">
-            {catalog.packs.map((pack) => (
-              <li key={pack.id} className="flex items-center gap-3 px-5 py-3">
-                <p className="text-xs font-bold">
-                  💎 {pack.diamonds}
-                  {pack.tag ? (
-                    <span className="ml-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-white">
-                      {pack.tag}
-                    </span>
-                  ) : null}
-                </p>
-                <span className="ml-auto text-xs font-bold text-green-d">
-                  {formatRupiah(pack.price)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {pricingRows.length === 0 ? (
+            <p className="px-5 py-8 text-center text-xs opacity-70">
+              Belum ada game yang muncul di checkout.
+            </p>
+          ) : (
+            <ul className="divide-y divide-mint-2">
+              {pricingRows.map((row) => (
+                <li key={row.game.slug} className="flex items-center gap-3 px-5 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-bold">{row.game.name}</p>
+                    <p className="text-[11px] opacity-60">{row.count} nominal</p>
+                  </div>
+                  <span className="ml-auto text-xs font-bold text-green-d">
+                    {row.cheapest === null ? "—" : `mulai ${formatRupiah(row.cheapest)}`}
+                  </span>
+                  <Link
+                    href={`/admin/paket?game=${row.game.slug}`}
+                    className="rounded-lg border-[1.5px] border-mint-2 px-3 py-1.5 text-[11px] font-bold hover:bg-mint"
+                  >
+                    Atur
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className={CARD}>
