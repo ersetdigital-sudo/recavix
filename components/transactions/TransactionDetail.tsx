@@ -27,12 +27,20 @@ export function TransactionDetail({ order }: { order: Order }) {
   return (
     <div>
       <SectionCard className="mb-5">
-        <div className="flex flex-wrap items-start gap-3">
-          <div aria-hidden className="text-3xl">
+        {/*
+          Di layar sempit ikon, nomor invoice, dan badge harus muat dalam satu
+          baris. Nomor invoice (15 karakter monospace) yang paling banyak makan
+          tempat, jadi ukurannya diturunkan di mobile dan baru dinaikkan lagi
+          dari breakpoint `sm` ke atas — desktop tidak berubah.
+        */}
+        <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+          <div aria-hidden className="text-2xl leading-none sm:text-3xl">
             {ORDER_STATUS_CUSTOMER_ICON[order.status]}
           </div>
-          <div>
-            <h2 className="font-mono text-[22px] font-extrabold leading-tight">{order.invoice}</h2>
+          <div className="min-w-0">
+            <h2 className="font-mono text-[17px] font-extrabold leading-tight sm:text-[22px]">
+              {order.invoice}
+            </h2>
             <p className="text-sm opacity-70">{formatDateTime(order.createdAt)}</p>
           </div>
           <span
@@ -66,7 +74,7 @@ export function TransactionDetail({ order }: { order: Order }) {
       </SectionCard>
 
       <SectionCard>
-        <h3 className="mb-4 text-[19px] font-extrabold">Riwayat Status</h3>
+        <h3 className="mb-4 text-[17px] font-extrabold sm:text-[19px]">Riwayat Status</h3>
         <StatusTimeline steps={timeline.steps} done={timeline.done} />
 
         <div className="mt-2 flex flex-wrap gap-3">

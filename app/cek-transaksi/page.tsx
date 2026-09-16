@@ -90,7 +90,9 @@ export default async function CekTransaksiPage({ searchParams }: PageProps) {
 
           <div className="grid items-start gap-6 lg:grid-cols-[380px_1fr]">
             <SectionCard className="lg:sticky lg:top-6">
-              <h1 className="text-[24px] font-extrabold leading-tight">Lacak Pesanan Kamu</h1>
+              <h1 className="text-[21px] font-extrabold leading-tight sm:text-[24px]">
+                Lacak Pesanan Kamu
+              </h1>
               <p className="mb-4 mt-1 text-sm opacity-75">
                 Masukkan Invoice ID dan User ID akun game yang kamu pakai saat top up.
               </p>
@@ -147,10 +149,12 @@ export default async function CekTransaksiPage({ searchParams }: PageProps) {
             <section aria-live="polite">
               {!submitted && (
                 <div className="card-shadow rounded-2xl border border-peach bg-peach-2 p-8 text-center">
-                  <div aria-hidden className="mb-2 text-4xl">
+                  <div aria-hidden className="mb-2 text-3xl sm:text-4xl">
                     🔎
                   </div>
-                  <h2 className="text-[20px] font-extrabold">Belum ada transaksi ditampilkan</h2>
+                  <h2 className="text-[18px] font-extrabold sm:text-[20px]">
+                    Belum ada transaksi ditampilkan
+                  </h2>
                   <p className="mt-1 text-sm opacity-75">
                     Masukkan Invoice ID dan User ID di sebelah kiri untuk melihat status pesanan.
                   </p>
@@ -165,7 +169,7 @@ export default async function CekTransaksiPage({ searchParams }: PageProps) {
 
               {failed && (
                 <div className="card-shadow rounded-2xl border-2 border-line bg-white p-8 text-center">
-                  <h2 className="text-[20px] font-extrabold">Data gagal dimuat</h2>
+                  <h2 className="text-[18px] font-extrabold sm:text-[20px]">Data gagal dimuat</h2>
                   <p className="mt-1 text-sm opacity-75">
                     Coba muat ulang halaman ini sebentar lagi.
                   </p>
