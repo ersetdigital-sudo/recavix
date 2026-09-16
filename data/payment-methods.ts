@@ -1,6 +1,6 @@
-import type { PaymentMethod, PromoCode } from "@/types";
+import type { PaymentMethodSeed, PromoCode } from "@/types";
 
-export const paymentMethods: PaymentMethod[] = [
+export const paymentMethods: PaymentMethodSeed[] = [
   { id: "qris", name: "QRIS (Semua e-wallet)", color: "#4f7a4a", code: "QR" },
   { id: "gopay", name: "GoPay", color: "#00a2e8", code: "GP" },
   { id: "dana", name: "DANA", color: "#1a8fe3", code: "DN" },

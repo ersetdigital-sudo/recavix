@@ -5,17 +5,19 @@ import { useMemo, useState } from "react";
 import { FilterRow } from "@/components/ui/FilterRow";
 import { GameCard } from "@/components/ui/GameCard";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { GAME_CATEGORIES, GAME_PLATFORMS, games } from "@/data/games";
+import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
 import { cn } from "@/lib/cn";
 import { toggleInSet } from "@/lib/collections";
-import type { GameCategory, GamePlatform } from "@/types";
+import type { CatalogGame, GameCategory, GamePlatform } from "@/types";
 
 interface GamesExplorerProps {
   /** Pre-filled search term, e.g. when arriving from the home search box. */
   initialQuery?: string;
+  /** Game aktif dari katalog. */
+  games: CatalogGame[];
 }
 
-export function GamesExplorer({ initialQuery = "" }: GamesExplorerProps) {
+export function GamesExplorer({ initialQuery = "", games }: GamesExplorerProps) {
   const [query, setQuery] = useState(initialQuery);
   const [categories, setCategories] = useState<Set<GameCategory>>(new Set());
   const [platforms, setPlatforms] = useState<Set<GamePlatform>>(new Set());
@@ -28,7 +30,7 @@ export function GamesExplorer({ initialQuery = "" }: GamesExplorerProps) {
         (platforms.size === 0 || platforms.has(game.platform)) &&
         (term === "" || game.name.toLowerCase().includes(term)),
     );
-  }, [query, categories, platforms]);
+  }, [games, query, categories, platforms]);
 
   const reset = () => {
     setQuery("");

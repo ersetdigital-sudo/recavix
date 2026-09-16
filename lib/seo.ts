@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 
-import { faqItems } from "@/data/faq";
-import { games } from "@/data/games";
-import { site } from "@/data/site";
-import type { Game, NavItem } from "@/types";
+import { SITE_LANG, SITE_LOCALE, SITE_ORIGIN } from "@/lib/content/defaults";
+import type { FaqItem, Game, NavItem, SiteSettings } from "@/types";
 
 const DEFAULT_OG_IMAGE = "/images/hero/promo-cashback-70.png";
 
@@ -13,6 +11,13 @@ interface PageMetadataInput {
   /** Absolute-in-app path, e.g. `/games`. */
   path: string;
   image?: string;
+  /** Nama brand yang sedang aktif — berasal dari dashboard, bukan dari kode. */
+  siteName: string;
+  /**
+   * Judul yang sudah memuat nama brand sendiri. Tanpa ini, template judul dari
+   * root layout menempelkan nama brand untuk kedua kalinya.
+   */
+  absoluteTitle?: boolean;
 }
 
 /** Builds consistent per-page metadata (canonical, OG, Twitter). */
@@ -21,18 +26,20 @@ export function createMetadata({
   description,
   path,
   image = DEFAULT_OG_IMAGE,
+  siteName,
+  absoluteTitle = false,
 }: PageMetadataInput): Metadata {
-  const url = new URL(path, site.url).toString();
+  const url = new URL(path, SITE_ORIGIN).toString();
 
   return {
-    title,
+    title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
     openGraph: {
       type: "website",
-      locale: site.locale,
+      locale: SITE_LOCALE,
       url,
-      siteName: site.name,
+      siteName,
       title,
       description,
       images: [{ url: image, alt: title }],
@@ -53,32 +60,32 @@ const withContext = (data: JsonLdObject): JsonLdObject => ({
   ...data,
 });
 
-export const organizationJsonLd = (): JsonLdObject =>
+export const organizationJsonLd = (settings: SiteSettings): JsonLdObject =>
   withContext({
     "@type": "Organization",
-    name: site.name,
-    url: site.url,
-    email: site.contact.email,
-    description: site.description,
+    name: settings.name,
+    url: SITE_ORIGIN,
+    email: settings.contact.email,
+    description: settings.description,
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
-      email: site.contact.email,
-      telephone: `+${site.contact.whatsapp}`,
+      email: settings.contact.email,
+      telephone: `+${settings.contact.whatsapp}`,
       areaServed: "ID",
       availableLanguage: ["id"],
     },
   });
 
-export const websiteJsonLd = (): JsonLdObject =>
+export const websiteJsonLd = (settings: SiteSettings): JsonLdObject =>
   withContext({
     "@type": "WebSite",
-    name: site.name,
-    url: site.url,
-    inLanguage: site.lang,
+    name: settings.name,
+    url: SITE_ORIGIN,
+    inLanguage: SITE_LANG,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${site.url}/games?q={search_term_string}`,
+      target: `${SITE_ORIGIN}/games?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   });
@@ -90,24 +97,24 @@ export const breadcrumbJsonLd = (items: NavItem[]): JsonLdObject =>
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      item: new URL(item.href, site.url).toString(),
+      item: new URL(item.href, SITE_ORIGIN).toString(),
     })),
   });
 
-export const faqJsonLd = (): JsonLdObject =>
+export const faqJsonLd = (items: FaqItem[]): JsonLdObject =>
   withContext({
     "@type": "FAQPage",
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: { "@type": "Answer", text: item.answer },
     })),
   });
 
-export const gameListJsonLd = (list: Game[] = games): JsonLdObject =>
+export const gameListJsonLd = (list: Game[], siteName: string): JsonLdObject =>
   withContext({
     "@type": "ItemList",
-    name: "Katalog Game Recavix",
+    name: `Katalog Game ${siteName}`,
     numberOfItems: list.length,
     itemListElement: list.map((game, index) => ({
       "@type": "ListItem",
@@ -115,7 +122,7 @@ export const gameListJsonLd = (list: Game[] = games): JsonLdObject =>
       item: {
         "@type": "VideoGame",
         name: game.name,
-        image: new URL(game.image, site.url).toString(),
+        image: new URL(game.image, SITE_ORIGIN).toString(),
         genre: game.category,
         gamePlatform: game.platform,
         aggregateRating: {
@@ -135,6 +142,9 @@ interface ProductJsonLdInput {
   image: string;
   lowPrice: number;
   highPrice: number;
+  /** Jumlah paket yang ditawarkan — ikut katalog, bukan angka tetap. */
+  offerCount: number;
+  siteName: string;
 }
 
 export const productJsonLd = ({
@@ -144,20 +154,22 @@ export const productJsonLd = ({
   image,
   lowPrice,
   highPrice,
+  offerCount,
+  siteName,
 }: ProductJsonLdInput): JsonLdObject =>
   withContext({
     "@type": "Product",
     name,
     description,
-    image: new URL(image, site.url).toString(),
-    brand: { "@type": "Brand", name: site.name },
+    image: new URL(image, SITE_ORIGIN).toString(),
+    brand: { "@type": "Brand", name: siteName },
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "IDR",
       lowPrice,
       highPrice,
-      offerCount: 14,
+      offerCount,
       availability: "https://schema.org/InStock",
-      url: new URL(path, site.url).toString(),
+      url: new URL(path, SITE_ORIGIN).toString(),
     },
   });

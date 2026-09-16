@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { heroSlides } from "@/data/hero-slides";
 import { cn } from "@/lib/cn";
 import { HERO_BANNER_ASPECT, HERO_BANNER_SIZES } from "@/lib/media";
+import type { HeroSlide } from "@/types";
 
 const AUTOPLAY_MS = 3500;
 
@@ -17,34 +17,43 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction > 0 ? "-100%" : "100%" }),
 };
 
-export function HeroCarousel() {
-  const count = heroSlides.length;
+interface HeroCarouselProps {
+  /** Slide banner aktif, berasal dari dashboard. */
+  slides: HeroSlide[];
+}
+
+export function HeroCarousel({ slides }: HeroCarouselProps) {
+  const count = slides.length;
   const [[index, direction], setSlide] = useState<[number, number]>([0, 0]);
   const [paused, setPaused] = useState(false);
 
   const paginate = useCallback(
     (step: number) => {
+      if (count === 0) return;
       setSlide(([current]) => [(current + step + count) % count, step]);
     },
     [count],
   );
 
   useEffect(() => {
-    if (paused) return;
+    // Tanpa slide, tidak ada yang bisa diputar — dan modulo 0 menghasilkan NaN.
+    if (paused || count === 0) return;
     const timer = setInterval(() => {
       setSlide(([current]) => [(current + 1) % count, 1]);
     }, AUTOPLAY_MS);
     return () => clearInterval(timer);
   }, [paused, count]);
 
-  const activeSlide = heroSlides[index];
+  const activeSlide = slides[index];
+
+  if (!activeSlide) return null;
 
   return (
     <div>
       <div
         role="region"
         aria-roledescription="carousel"
-        aria-label="Promo Recavix"
+        aria-label="Promo"
         className="card-shadow group relative overflow-hidden rounded-2xl border-2 border-white"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -81,26 +90,32 @@ export function HeroCarousel() {
             </motion.div>
           </AnimatePresence>
 
-          <CarouselButton side="prev" onClick={() => paginate(-1)} />
-          <CarouselButton side="next" onClick={() => paginate(1)} />
+          {count > 1 ? (
+            <>
+              <CarouselButton side="prev" onClick={() => paginate(-1)} />
+              <CarouselButton side="next" onClick={() => paginate(1)} />
+            </>
+          ) : null}
         </div>
       </div>
 
-      <div className="flex justify-center gap-2 py-3">
-        {heroSlides.map((slide, dotIndex) => (
-          <button
-            key={slide.id}
-            type="button"
-            onClick={() => setSlide([dotIndex, dotIndex > index ? 1 : -1])}
-            aria-label={`Ke slide ${dotIndex + 1}`}
-            aria-current={dotIndex === index}
-            className={cn(
-              "h-[9px] rounded-full transition-all duration-300",
-              dotIndex === index ? "w-[22px] bg-green" : "w-[9px] bg-[#cbd8c6]",
-            )}
-          />
-        ))}
-      </div>
+      {count > 1 ? (
+        <div className="flex justify-center gap-2 py-3">
+          {slides.map((slide, dotIndex) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => setSlide([dotIndex, dotIndex > index ? 1 : -1])}
+              aria-label={`Ke slide ${dotIndex + 1}`}
+              aria-current={dotIndex === index}
+              className={cn(
+                "h-[9px] rounded-full transition-all duration-300",
+                dotIndex === index ? "w-[22px] bg-green" : "w-[9px] bg-[#cbd8c6]",
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

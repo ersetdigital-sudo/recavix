@@ -1,9 +1,10 @@
 import Link from "next/link";
 
-import { site } from "@/data/site";
 import { cn } from "@/lib/cn";
 
 interface LogoProps {
+  /** Nama brand yang sedang aktif — berasal dari dashboard, bukan dari kode. */
+  name: string;
   className?: string;
   /** Mark only, no wordmark — used where space is tight. */
   markOnly?: boolean;
@@ -58,17 +59,22 @@ export function LogoMark({
   );
 }
 
-export function Logo({ className, markOnly = false, size = 30 }: LogoProps) {
+export function Logo({ name, className, markOnly = false, size = 30 }: LogoProps) {
+  // Dua huruf terakhir diberi warna aksen; sisanya warna brand.
+  const head = name.length > 2 ? name.slice(0, -2) : "";
+  const tail = name.length > 2 ? name.slice(-2) : name;
+
   return (
     <Link
       href="/"
-      aria-label={`${site.name} — beranda`}
+      aria-label={`${name} — beranda`}
       className={cn("flex flex-none items-center gap-2", className)}
     >
       <LogoMark size={size} />
       {!markOnly && (
         <span className="font-display text-[21px] font-extrabold leading-none text-green-d">
-          Reca<span className="text-green">vix</span>
+          {head}
+          <span className="text-green">{tail}</span>
         </span>
       )}
     </Link>

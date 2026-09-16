@@ -1,11 +1,11 @@
 import { cn } from "@/lib/cn";
-import type { TransactionStep } from "@/types";
+import type { OrderStep } from "@/types";
 
 export function StatusTimeline({
   steps,
   done,
 }: {
-  steps: TransactionStep[];
+  steps: OrderStep[];
   done: number;
 }) {
   return (
@@ -28,15 +28,11 @@ export function StatusTimeline({
               {!isLast && <div className="my-1 w-0.5 flex-1 bg-[#dfe8db]" />}
             </div>
             <div className="pb-4">
-              <div
-                className={cn(
-                  "text-sm font-semibold",
-                  !complete && "opacity-50",
-                )}
-              >
+              <div className={cn("text-sm font-semibold", !complete && "opacity-50")}>
                 {step.label}
               </div>
-              <div className="text-xs opacity-60">{step.time}</div>
+              {/* Waktu hanya ditampilkan kalau memang tercatat. */}
+              {step.time ? <div className="text-xs opacity-60">{step.time}</div> : null}
             </div>
           </div>
         );

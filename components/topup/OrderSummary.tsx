@@ -9,6 +9,8 @@ interface OrderSummaryProps {
   discount: number;
   total: number;
   error?: string | null;
+  /** Sedang membuat pesanan di server. */
+  pending?: boolean;
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
@@ -28,6 +30,7 @@ export function OrderSummary({
   discount,
   total,
   error,
+  pending = false,
 }: OrderSummaryProps) {
   return (
     <SectionCard
@@ -64,9 +67,10 @@ export function OrderSummary({
 
       <button
         type="submit"
-        className="mt-4 w-full rounded-xl bg-green-d py-3 font-display text-lg font-bold text-white transition-colors hover:bg-green-dd"
+        disabled={pending}
+        className="mt-4 w-full rounded-xl bg-green-d py-3 font-display text-lg font-bold text-white transition-colors hover:bg-green-dd disabled:opacity-60"
       >
-        Bayar Sekarang
+        {pending ? "Membuat pesanan..." : "Bayar Sekarang"}
       </button>
       <p className="mt-3 text-center text-[11px] opacity-70">
         Dengan melanjutkan kamu setuju dengan Syarat &amp; Ketentuan Recavix.

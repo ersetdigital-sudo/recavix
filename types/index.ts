@@ -32,6 +32,22 @@ export interface DiamondPack {
   tag?: string;
 }
 
+/** Game seperti yang tersimpan di katalog — punya flag tampil dan urutan. */
+export interface CatalogGame extends Game {
+  isActive: boolean;
+  sortOrder: number;
+}
+
+/** Paket diamond seperti yang tersimpan di katalog. */
+export interface CatalogPack extends DiamondPack {
+  id: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export type PaymentType = "qris" | "transfer";
+
+/** Bentuk lengkap yang disimpan di database dan dipakai seluruh halaman. */
 export interface PaymentMethod {
   id: string;
   name: string;
@@ -39,6 +55,36 @@ export interface PaymentMethod {
   color: string;
   /** 2–3 letter code shown inside the icon chip. */
   code: string;
+  /** "qris" menampilkan gambar QR, "transfer" menampilkan nomor tujuan. */
+  type: PaymentType;
+  /** Label nomor tujuan, contoh "Nomor Virtual Account BCA". */
+  accountLabel: string;
+  accountNumber: string;
+  accountName: string;
+  /** URL gambar QRIS hasil upload admin. */
+  qrImage: string;
+  /** Logo bank / e-wallet, opsional. */
+  logo: string;
+  /** Langkah cara bayar. Kosong = pakai langkah bawaan sesuai tipe. */
+  instructions: string[];
+  isActive: boolean;
+  sortOrder: number;
+}
+
+/** Bentuk ringkas yang ditulis di `data/` — sisanya diisi default saat dibaca. */
+export interface PaymentMethodSeed {
+  id: string;
+  name: string;
+  color: string;
+  code: string;
+  type?: PaymentType;
+  accountLabel?: string;
+  accountNumber?: string;
+  accountName?: string;
+  qrImage?: string;
+  logo?: string;
+  instructions?: string[];
+  isActive?: boolean;
 }
 
 export interface PromoCode {
@@ -71,24 +117,97 @@ export interface NavItem {
   href: string;
 }
 
-export type TransactionStatus = "success" | "pending" | "failed";
+export interface ContactSettings {
+  email: string;
+  /** Format internasional tanpa +, contoh 6281234567890. */
+  whatsapp: string;
+  /** Versi tampilan nomor, contoh "+62 812-3456-7890". */
+  whatsappDisplay: string;
+}
 
-export interface TransactionStep {
+export interface SocialSettings {
+  instagram: string;
+  facebook: string;
+  tiktok: string;
+}
+
+/** Bagian identitas yang boleh diubah dari dashboard. */
+export interface EditableSettings {
+  name: string;
+  shortName: string;
+  tagline: string;
+  description: string;
+  contact: ContactSettings;
+  social: SocialSettings;
+}
+
+/**
+ * Identitas lengkap yang dipakai halaman: gabungan nilai yang bisa diedit admin
+ * dengan nilai yang tetap berasal dari kode/env.
+ */
+export interface SiteSettings extends EditableSettings {
+  /** Origin canonical — selalu dari NEXT_PUBLIC_SITE_URL, tidak diedit admin. */
+  url: string;
+  locale: string;
+  lang: string;
+}
+
+/** Satu dokumen konten presentasi, seperti yang tersimpan di tabel `site_content`. */
+export interface StoredContent {
+  settings: EditableSettings;
+  navigation: { header: NavItem[]; help: NavItem[] };
+  heroSlides: HeroSlide[];
+  faq: FaqItem[];
+  testimonials: Testimonial[];
+  promoCodes: PromoCode[];
+}
+
+/** Sama seperti StoredContent, tapi identitasnya sudah lengkap untuk dirender. */
+export interface SiteContent extends Omit<StoredContent, "settings"> {
+  settings: SiteSettings;
+}
+
+/** Bentuk kode promo di form admin — diskon dalam persen, bukan pecahan. */
+export interface PromoDraft {
+  code: string;
+  /** Contoh 10 untuk diskon 10%. */
+  percent: number;
+}
+
+export type OrderStatus = "menunggu" | "dibayar" | "selesai" | "batal";
+
+/** Satu pesanan top up. Disimpan di tabel `orders`. */
+export interface Order {
+  id: string;
+  invoice: string;
+  gameSlug: string | null;
+  gameName: string;
+  itemLabel: string;
+  diamonds: number | null;
+  accountId: string;
+  zoneId: string | null;
+  contact: string | null;
+  /** Nama metode saat pesanan dibuat — snapshot, aman walau metodenya diubah admin. */
+  paymentMethod: string;
+  /** Null kalau metodenya sudah dihapus admin. */
+  paymentMethodId: string | null;
+  subtotal: number;
+  fee: number;
+  discount: number;
+  promoCode: string | null;
+  total: number;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+/** Satu langkah pada linimasa status pesanan. */
+export interface OrderStep {
   label: string;
   time: string;
 }
 
-export interface Transaction {
-  id: string;
-  status: TransactionStatus;
-  game: string;
-  item: string;
-  account: string;
-  payment: string;
-  total: string;
-  date: string;
-  /** Ordered timeline steps. */
-  steps: TransactionStep[];
-  /** How many leading steps are completed. */
-  done: number;
+/** Hasil operasi simpan/ubah dari dashboard admin. */
+export interface ActionResult {
+  ok: boolean;
+  message: string;
 }

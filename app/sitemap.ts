@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { site } from "@/data/site";
+import { SITE_ORIGIN } from "@/lib/content/defaults";
 
 interface RouteConfig {
   path: string;
@@ -19,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
   return routes.map((route) => ({
-    url: new URL(route.path, site.url).toString(),
+    url: new URL(route.path, SITE_ORIGIN).toString(),
     lastModified,
     changeFrequency: route.changeFrequency,
     priority: route.priority,

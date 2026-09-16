@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { site } from "@/data/site";
+import { SITE_ORIGIN } from "@/lib/content/defaults";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: new URL("/sitemap.xml", site.url).toString(),
-    host: site.url,
+    sitemap: new URL("/sitemap.xml", SITE_ORIGIN).toString(),
+    host: SITE_ORIGIN,
   };
 }

@@ -142,10 +142,14 @@
     color: var(--color-ink);
     font-size: 14px;
     outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .field:focus {
     border-color: var(--color-green-d);
+    box-shadow: 0 0 0 3px rgba(143, 192, 138, 0.28);
   }
 }
 

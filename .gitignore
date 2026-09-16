@@ -35,3 +35,9 @@ yarn-error.log*
 
 # legacy static source (pre-conversion HTML, kept for reference)
 /legacy/
+
+.vercel
+.env*
+
+# dokumentasi env tanpa nilai rahasia — tetap ikut ter-commit
+!.env.example

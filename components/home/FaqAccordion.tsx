@@ -3,15 +3,22 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
-import { faqItems } from "@/data/faq";
 import { cn } from "@/lib/cn";
+import type { FaqItem } from "@/types";
 
-export function FaqAccordion() {
+interface FaqAccordionProps {
+  /** Pertanyaan umum aktif, berasal dari dashboard. */
+  items: FaqItem[];
+}
+
+export function FaqAccordion({ items }: FaqAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  if (items.length === 0) return null;
 
   return (
     <ul className="space-y-2">
-      {faqItems.map((item, index) => {
+      {items.map((item, index) => {
         const isOpen = openIndex === index;
         const panelId = `faq-panel-${index}`;
         const buttonId = `faq-button-${index}`;

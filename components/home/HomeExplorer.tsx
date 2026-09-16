@@ -8,12 +8,19 @@ import { FilterRow } from "@/components/ui/FilterRow";
 import { GameCard } from "@/components/ui/GameCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { GAME_CATEGORIES, GAME_PLATFORMS, games } from "@/data/games";
+import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
 import { cn } from "@/lib/cn";
 import { toggleInSet } from "@/lib/collections";
-import type { GameCategory, GamePlatform } from "@/types";
+import type { CatalogGame, GameCategory, GamePlatform, HeroSlide } from "@/types";
 
-export function HomeExplorer() {
+interface HomeExplorerProps {
+  /** Game aktif dari katalog — dikirim server component supaya bisa diubah dari dashboard. */
+  games: CatalogGame[];
+  /** Slide banner aktif dari dashboard. */
+  heroSlides: HeroSlide[];
+}
+
+export function HomeExplorer({ games, heroSlides }: HomeExplorerProps) {
   const [categories, setCategories] = useState<Set<GameCategory>>(
     () => new Set<GameCategory>(["Moba Game"]),
   );
@@ -28,7 +35,7 @@ export function HomeExplorer() {
           (categories.size === 0 || categories.has(game.category)) &&
           (platforms.size === 0 || platforms.has(game.platform)),
       ),
-    [categories, platforms],
+    [games, categories, platforms],
   );
 
   const heading =
@@ -65,7 +72,7 @@ export function HomeExplorer() {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <HeroCarousel />
+        <HeroCarousel slides={heroSlides} />
 
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {GAME_CATEGORIES.map((category) => {
