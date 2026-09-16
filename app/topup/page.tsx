@@ -31,15 +31,17 @@ export default async function TopupPage() {
     getSiteContent(),
   ]);
 
-  // Semua game aktif bisa dibeli — game yang ditambahkan dari dashboard langsung
-  // muncul di sini. Paket dikirim per game karena harga tiap game diatur sendiri.
+  // Hanya game yang sudah dibuka yang bisa dipesan. Game "Segera Hadir" tetap
+  // tampil di beranda dan katalog, tapi tidak ikut di selector checkout.
+  const buyableGames = games.filter((game) => !game.comingSoon);
+
   const checkoutPacks = Object.fromEntries(
-    games.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
+    buyableGames.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
   );
 
   const allPacks = Object.values(checkoutPacks).flat();
   const prices = allPacks.map((pack) => pack.price);
-  const available = games.length > 0 && allPacks.length > 0 && methods.length > 0;
+  const available = buyableGames.length > 0 && allPacks.length > 0 && methods.length > 0;
 
   return (
     <>
@@ -77,7 +79,7 @@ export default async function TopupPage() {
 
           {available ? (
             <TopupFlow
-              games={games}
+              games={buyableGames}
               packsByGame={checkoutPacks}
               methods={methods}
               promos={content.promoCodes}

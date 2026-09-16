@@ -80,6 +80,7 @@ function normalizeGame(raw: unknown, index: number): CatalogGame | null {
     rating: Math.min(5, Math.max(1, Math.round(num(raw.rating, 5)))),
     // Tidak diisi dianggap aktif, jadi game lama tetap tampil.
     isActive: raw.isActive !== false,
+    comingSoon: raw.comingSoon === true,
     sortOrder: index,
   };
 }

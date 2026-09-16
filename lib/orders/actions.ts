@@ -48,6 +48,9 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
     // dipesan, meski halamannya masih terbuka di browser pembeli.
     const game = games.find((entry) => entry.slug === input.gameSlug);
     if (!game) return { ok: false, message: "Game tidak ditemukan atau sudah tidak aktif." };
+    if (game.comingSoon) {
+      return { ok: false, message: "Game ini belum dibuka. Nantikan ya." };
+    }
 
     // Harga dicari dari daftar paket milik game itu sendiri, bukan game lain.
     const pack = (await readActivePacks(game.slug)).find((entry) => entry.id === input.packId);

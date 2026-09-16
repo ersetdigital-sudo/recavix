@@ -12,6 +12,7 @@ import type { CatalogGame, CatalogPack } from "@/types";
 export const DEFAULT_GAMES: CatalogGame[] = games.map((game, index) => ({
   ...game,
   isActive: true,
+  comingSoon: game.comingSoon === true,
   sortOrder: index,
 }));
 

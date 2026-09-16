@@ -28,6 +28,7 @@ export function NewGameButton({ games, action }: NewGameButtonProps) {
       image: GAME_IMAGE_FALLBACK,
       rating: 5,
       isActive: false,
+      comingSoon: false,
       sortOrder: games.length,
     };
 

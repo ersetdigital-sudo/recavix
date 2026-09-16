@@ -17,6 +17,12 @@ const FIELDS: FieldDef[] = [
     help: "Kalau dimatikan, game ini hilang dari beranda, katalog, dan sitemap. Datanya tetap tersimpan lengkap, jadi bisa dinyalakan lagi kapan saja.",
   },
   {
+    name: "comingSoon",
+    label: "Segera hadir",
+    type: "toggle",
+    help: "Game tetap tampil di beranda dan katalog dengan badge “Segera Hadir”, tapi pembeli belum bisa memilihnya di checkout. Nyalakan tombol belinya dengan mematikan opsi ini.",
+  },
+  {
     name: "name",
     label: "Nama game",
     type: "text",

@@ -14,6 +14,7 @@ interface GameRow {
   image: string;
   rating: number | string;
   is_active: boolean;
+  coming_soon: boolean;
   sort_order: number;
 }
 
@@ -36,6 +37,7 @@ const toGame = (row: GameRow): CatalogGame => ({
   rating: Number(row.rating),
   // Baris lama yang belum punya nilai dianggap aktif.
   isActive: row.is_active !== false,
+  comingSoon: row.coming_soon === true,
   sortOrder: row.sort_order ?? 0,
 });
 
@@ -147,6 +149,7 @@ export async function writeGames(games: CatalogGame[]): Promise<void> {
     image: game.image,
     rating: game.rating,
     is_active: game.isActive,
+    coming_soon: game.comingSoon,
     sort_order: index,
     updated_at: new Date().toISOString(),
   }));

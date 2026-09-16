@@ -21,8 +21,10 @@ dengan Next.js App Router, animasi halus, dan SEO teknis yang lengkap.
 
 - **Katalog 6 game** — PUBG Mobile, Mobile Legends, Free Fire, Magic Chess, Honor of Kings,
   dan Roblox. Menambah game dari dashboard langsung membuatnya bisa dijual.
-- **Filter mengikuti katalog** — beranda dan katalog hanya menampilkan kategori/platform yang
-  benar-benar dipakai, jadi tidak ada filter kosong yang terlihat seperti game hilang.
+- **Game "Segera Hadir"** — game yang belum dibuka tetap tampil di beranda dan katalog dengan
+  badge, tapi tidak bisa dipilih di checkout. Diatur per game dari dashboard.
+- **Filter mengikuti katalog** — panel filter hanya menampilkan kategori/platform yang benar-benar
+  dipakai (lengkap dengan jumlah game), jadi tidak ada filter yang menjamin hasil kosong.
 - **Pencarian & filter real-time** — cari berdasarkan nama, saring dengan kombinasi
   kategori + platform secara bersamaan, lengkap dengan hitungan hasil dan empty state.
 - **Carousel promo otomatis** — 4 slide banner yang berganti tiap 3,5 detik, berhenti
@@ -105,13 +107,13 @@ recavix/
 ├─ components/
 │  ├─ layout/                  #   Header, HeaderBar, Footer, Container, Breadcrumbs, SiteShell
 │  ├─ home/                    #   HomeExplorer, HeroCarousel, FaqAccordion, Testimonials
-│  ├─ games/                   #   GamesExplorer — pencarian + filter
+│  ├─ games/                   #   GamesExplorer + GameFilterPanel (filter dipakai beranda & katalog)
 │  ├─ topup/                   #   TopupFlow + StepCard, DiamondPackGrid, PaymentMethodGrid, OrderSummary
 │  ├─ order/                   #   PaymentInstructions, PaymentCountdown, MarkPaidButton, CopyButton
 │  ├─ transactions/            #   TransactionDetail, StatusTimeline, TransactionNotFound
 │  ├─ admin/                   #   form primitives, editor game/paket/pembayaran, upload gambar
 │  ├─ seo/                     #   JsonLd
-│  └─ ui/                      #   GameCard, SectionCard, Reveal, StarRating, FilterRow, Icon, ...
+│  └─ ui/                      #   GameCard, SectionCard, Reveal, StarRating, Icon, ...
 ├─ data/                       # Nilai bawaan (seed) — dipakai selama tabel masih kosong
 ├─ lib/                        # cn, collections, cache, format, media, fonts, seo, pricing,
 │                              #   supabase/ catalog/ payments/ orders/ content/ admin/
@@ -280,11 +282,12 @@ ke camelCase di `lib/*/store.ts`.
 | --- | --- | --- |
 | `slug` | text | **Primary key** |
 | `name` | text | |
-| `category` | text | Salah satu dari 7 kategori di `types/index.ts` |
+| `category` | text | Salah satu dari 8 kategori di `types/index.ts` |
 | `platform` | text | Salah satu dari 6 platform |
 | `image` | text | Path di `public/`, contoh `/images/games/mobile-legends.png` |
 | `rating` | numeric | 1–5 |
 | `is_active` | boolean | `false` = disembunyikan dari situs, datanya tetap tersimpan |
+| `coming_soon` | boolean | `true` = tampil dengan badge "Segera Hadir" dan tidak bisa dipilih di checkout |
 | `sort_order` | integer | Urutan tampil |
 | `updated_at` | timestamptz | |
 

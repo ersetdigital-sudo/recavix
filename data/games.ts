@@ -1,6 +1,7 @@
 import type { Game, GameCategory, GamePlatform } from "@/types";
 
 export const GAME_CATEGORIES: GameCategory[] = [
+  "Battle Royale",
   "Adventure",
   "Moba Game",
   "RPG",
@@ -31,7 +32,7 @@ export const games: Game[] = [
   {
     slug: "pubg-mobile",
     name: "PUBG Mobile",
-    category: "Adventure",
+    category: "Battle Royale",
     platform: "Smartphone",
     image: "/images/games/pubg-mobile.png",
     rating: 5,
@@ -47,7 +48,7 @@ export const games: Game[] = [
   {
     slug: "free-fire",
     name: "Free Fire",
-    category: "Adventure",
+    category: "Battle Royale",
     platform: "Smartphone",
     image: "/images/games/free-fire.png",
     rating: 5,
@@ -76,6 +77,29 @@ export const games: Game[] = [
     platform: "PC",
     image: "/images/games/roblox.png",
     rating: 5,
+  },
+  /*
+   * Game yang belum diluncurkan di Recavix. Tampil di beranda dan katalog dengan
+   * badge "Segera Hadir" supaya katalog tidak terasa kosong, tapi tidak bisa
+   * dipilih di checkout. Nyalakan tombol belinya dari dashboard begitu siap.
+   */
+  {
+    slug: "dota-2",
+    name: "Dota 2",
+    category: "Moba Game",
+    platform: "PC",
+    image: "/images/games/dota-2.png",
+    rating: 5,
+    comingSoon: true,
+  },
+  {
+    slug: "genshin-impact",
+    name: "Genshin Impact",
+    category: "RPG",
+    platform: "PC",
+    image: "/images/games/genshin-impact.png",
+    rating: 5,
+    comingSoon: true,
   },
 ];
 

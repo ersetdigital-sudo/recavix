@@ -1,12 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import { FilterRow } from "@/components/ui/FilterRow";
+import { GameFilterChips, GameFilterSidebar } from "@/components/games/GameFilterPanel";
 import { GameCard } from "@/components/ui/GameCard";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { availableCategories, availablePlatforms } from "@/data/games";
-import { cn } from "@/lib/cn";
 import { toggleInSet } from "@/lib/collections";
 import type { CatalogGame, GameCategory, GamePlatform } from "@/types";
 
@@ -22,10 +19,6 @@ export function GamesExplorer({ initialQuery = "", games }: GamesExplorerProps) 
   const [categories, setCategories] = useState<Set<GameCategory>>(new Set());
   const [platforms, setPlatforms] = useState<Set<GamePlatform>>(new Set());
 
-  // Pilihan filter mengikuti isi katalog — kategori kosong tidak ikut tampil.
-  const categoryOptions = useMemo(() => availableCategories(games), [games]);
-  const platformOptions = useMemo(() => availablePlatforms(games), [games]);
-
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     return games.filter(
@@ -36,62 +29,35 @@ export function GamesExplorer({ initialQuery = "", games }: GamesExplorerProps) 
     );
   }, [games, query, categories, platforms]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setQuery("");
-    setCategories(new Set());
-    setPlatforms(new Set());
-  };
+    setCategories(new Set<GameCategory>());
+    setPlatforms(new Set<GamePlatform>());
+  }, []);
+
+  const filterValue = useMemo(() => ({ categories, platforms }), [categories, platforms]);
 
   return (
     <div className="flex gap-6">
-      <aside className="hidden w-[220px] flex-none lg:block">
-        <SectionCard className="p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-[19px] font-extrabold">Categories</h3>
-            <button
-              type="button"
-              onClick={reset}
-              className="text-xs underline opacity-70 hover:opacity-100"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="flex flex-col gap-2">
-            {categoryOptions.map((category) => (
-              <FilterRow
-                key={category}
-                label={category}
-                checked={categories.has(category)}
-                onChange={() => setCategories((prev) => toggleInSet(prev, category))}
-              />
-            ))}
-          </div>
-
-          <h3 className="mb-3 mt-6 text-[19px] font-extrabold">Platforms</h3>
-          <div className="flex flex-col gap-2">
-            {platformOptions.map((platform) => (
-              <FilterRow
-                key={platform}
-                label={platform}
-                checked={platforms.has(platform)}
-                onChange={() => setPlatforms((prev) => toggleInSet(prev, platform))}
-              />
-            ))}
-          </div>
-        </SectionCard>
-      </aside>
+      <GameFilterSidebar
+        games={games}
+        value={filterValue}
+        onToggleCategory={(category: GameCategory) =>
+          setCategories((prev) => toggleInSet(prev, category))
+        }
+        onTogglePlatform={(platform: GamePlatform) =>
+          setPlatforms((prev) => toggleInSet(prev, platform))
+        }
+        onReset={reset}
+        hasil={filtered.length}
+      />
 
       <div className="min-w-0 flex-1">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <h1 className="flex items-center gap-2 text-[26px] font-extrabold">
-            <span aria-hidden>🎮</span> Semua Game
-          </h1>
-          <span aria-live="polite" className="text-sm opacity-70">
-            {filtered.length} dari {games.length} game
-          </span>
-        </div>
+        <h1 className="mb-3 flex items-center gap-2 text-[26px] font-extrabold">
+          <span aria-hidden>🎮</span> Semua Game
+        </h1>
 
-        <div className="mb-3">
+        <div className="mb-1">
           <label htmlFor="game-search" className="sr-only">
             Cari game
           </label>
@@ -105,26 +71,19 @@ export function GamesExplorer({ initialQuery = "", games }: GamesExplorerProps) 
           />
         </div>
 
-        <div className="mb-2 flex gap-2 overflow-x-auto pb-3 lg:hidden">
-          {categoryOptions.map((category) => {
-            const active = categories.has(category);
-            return (
-              <button
-                key={category}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setCategories((prev) => toggleInSet(prev, category))}
-                className={cn(
-                  "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition-colors",
-                  active
-                    ? "border-green-d bg-green-d text-white"
-                    : "border-mint-2 bg-white",
-                )}
-              >
-                {category}
-              </button>
-            );
-          })}
+        <div className="mt-3">
+          <GameFilterChips
+            games={games}
+            value={filterValue}
+            onToggleCategory={(category: GameCategory) =>
+              setCategories((prev) => toggleInSet(prev, category))
+            }
+            onTogglePlatform={(platform: GamePlatform) =>
+              setPlatforms((prev) => toggleInSet(prev, platform))
+            }
+            onReset={reset}
+            hasil={filtered.length}
+          />
         </div>
 
         {filtered.length > 0 ? (
@@ -139,9 +98,14 @@ export function GamesExplorer({ initialQuery = "", games }: GamesExplorerProps) 
               🫥
             </div>
             <p className="font-semibold">Game tidak ditemukan</p>
-            <p className="text-sm opacity-70">
-              Coba ubah kata kunci atau filter kamu.
-            </p>
+            <p className="text-sm opacity-70">Coba ubah kata kunci atau filter kamu.</p>
+            <button
+              type="button"
+              onClick={reset}
+              className="mt-3 text-sm font-bold text-green-d underline"
+            >
+              Tampilkan semua game
+            </button>
           </div>
         )}
       </div>

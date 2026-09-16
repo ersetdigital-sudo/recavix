@@ -1,4 +1,5 @@
 export type GameCategory =
+  | "Battle Royale"
   | "Adventure"
   | "Moba Game"
   | "RPG"
@@ -23,6 +24,11 @@ export interface Game {
   /** Path inside /public, e.g. `/images/games/mobile-legends.png`. */
   image: string;
   rating: number;
+  /**
+   * Game yang belum diluncurkan. Tetap tampil di beranda dan katalog dengan
+   * badge "Segera Hadir", tapi tidak bisa dipilih di checkout.
+   */
+  comingSoon?: boolean;
 }
 
 export interface DiamondPack {
@@ -35,6 +41,8 @@ export interface DiamondPack {
 /** Game seperti yang tersimpan di katalog — punya flag tampil dan urutan. */
 export interface CatalogGame extends Game {
   isActive: boolean;
+  /** Sudah dinormalkan, jadi selalu ada nilainya. */
+  comingSoon: boolean;
   sortOrder: number;
 }
 
