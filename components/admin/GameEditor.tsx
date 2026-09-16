@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import { FieldGrid, Panel, SaveButton, StatusText } from "@/components/admin/fields";
 import type { ActionResult, FieldDef } from "@/components/admin/fields";
 import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
+import { SECOND_ID_KINDS, SECOND_ID_KIND_LABEL } from "@/lib/catalog/id-fields";
 import type { CatalogGame } from "@/types";
 
 const FIELDS: FieldDef[] = [
@@ -58,6 +59,34 @@ const FIELDS: FieldDef[] = [
     type: "image",
     placeholder: "/images/games/nama-game.png",
     help: "Idealnya gambar persegi, minimal 320x320 px.",
+  },
+  {
+    name: "idLabel",
+    label: "Label kolom ID",
+    type: "text",
+    placeholder: "User ID",
+    help: "Ditulis di form checkout. Contoh: User ID, UID, Player ID, Username.",
+  },
+  {
+    name: "secondKind",
+    label: "Kolom kedua di checkout",
+    type: "select",
+    options: SECOND_ID_KINDS.map((kind) => ({ value: kind, label: SECOND_ID_KIND_LABEL[kind] })),
+    help: "Mobile Legends & Magic Chess butuh Zone ID, Genshin Impact butuh pilihan Server, PUBG/Free Fire/Roblox cukup satu kolom.",
+  },
+  {
+    name: "secondLabel",
+    label: "Label kolom kedua",
+    type: "text",
+    placeholder: "Zone ID",
+    help: "Dipakai kalau kolom kedua berupa isian bebas atau pilihan.",
+  },
+  {
+    name: "secondOptions",
+    label: "Pilihan kolom kedua",
+    type: "list",
+    placeholder: "Asia, America, Europe, TW/HK/MO",
+    help: "Pisahkan dengan koma. Hanya dipakai kalau kolom kedua bertipe pilihan.",
   },
 ];
 

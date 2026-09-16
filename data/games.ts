@@ -27,6 +27,21 @@ export const GAME_PLATFORMS: GamePlatform[] = [
  *
  * Semua game di daftar ini otomatis muncul di katalog, beranda, dan di selector
  * checkout. Menambah game dari dashboard admin juga langsung bisa dijual.
+ *
+ * Kolom yang diminta di checkout BEDA per game — di bawah ini hasil pengecekan
+ * langsung ke form distributor resminya, bukan asumsi:
+ *
+ * - Mobile Legends & Magic Chess : `User ID` + `Zone ID` (form Codashop punya
+ *   input bernama `zoneId`)
+ * - Genshin Impact               : `UID` + pilih `Server` — Genshin TIDAK punya
+ *   Zone ID, yang kedua itu pilihan server (Asia/America/Europe/TW,HK,MO)
+ * - PUBG Mobile                  : `Player ID` saja (toko resmi Midasbuy)
+ * - Free Fire                    : `Player ID` saja (form Codashop hanya 1 kolom)
+ * - Roblox                       : `Username`
+ * - Honor of Kings & Dota 2      : belum terverifikasi dari sumber resmi, jadi
+ *   dipakai nilai paling umum dan bisa diubah dari dashboard
+ *
+ * Semuanya bisa diubah dari dashboard (Katalog → game → bagian ID checkout).
  */
 export const games: Game[] = [
   {
@@ -36,6 +51,8 @@ export const games: Game[] = [
     platform: "Smartphone",
     image: "/images/games/pubg-mobile.png",
     rating: 5,
+    idLabel: "Player ID",
+    secondKind: "none",
   },
   {
     slug: "mobile-legends",
@@ -44,6 +61,9 @@ export const games: Game[] = [
     platform: "Smartphone",
     image: "/images/games/mobile-legends.png",
     rating: 5,
+    idLabel: "User ID",
+    secondKind: "text",
+    secondLabel: "Zone ID",
   },
   {
     slug: "free-fire",
@@ -52,6 +72,8 @@ export const games: Game[] = [
     platform: "Smartphone",
     image: "/images/games/free-fire.png",
     rating: 5,
+    idLabel: "Player ID",
+    secondKind: "none",
   },
   {
     // Ikon menyusul: unggah dari dashboard (Katalog → game ini → Ikon).
@@ -61,6 +83,9 @@ export const games: Game[] = [
     platform: "Smartphone",
     image: "",
     rating: 5,
+    idLabel: "User ID",
+    secondKind: "text",
+    secondLabel: "Zone ID",
   },
   {
     slug: "honor-of-kings",
@@ -69,6 +94,8 @@ export const games: Game[] = [
     platform: "Smartphone",
     image: "/images/games/honor-of-kings.png",
     rating: 5,
+    idLabel: "Player ID",
+    secondKind: "none",
   },
   {
     slug: "roblox",
@@ -77,6 +104,8 @@ export const games: Game[] = [
     platform: "PC",
     image: "/images/games/roblox.png",
     rating: 5,
+    idLabel: "Username",
+    secondKind: "none",
   },
   /*
    * Game yang belum diluncurkan di Recavix. Tampil di beranda dan katalog dengan
@@ -91,6 +120,8 @@ export const games: Game[] = [
     image: "/images/games/dota-2.png",
     rating: 5,
     comingSoon: true,
+    idLabel: "Steam ID",
+    secondKind: "none",
   },
   {
     slug: "genshin-impact",
@@ -100,6 +131,10 @@ export const games: Game[] = [
     image: "/images/games/genshin-impact.png",
     rating: 5,
     comingSoon: true,
+    idLabel: "UID",
+    secondKind: "select",
+    secondLabel: "Server",
+    secondOptions: ["Asia", "America", "Europe", "TW/HK/MO"],
   },
 ];
 

@@ -13,7 +13,7 @@ export interface FieldDef {
   /** Mendukung dot-path untuk objek bersarang, mis. "contact.email". */
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "select" | "toggle" | "image";
+  type: "text" | "textarea" | "number" | "select" | "toggle" | "image" | "list";
   options?: { value: string; label: string }[];
   placeholder?: string;
   help?: string;
@@ -106,6 +106,28 @@ function FieldInput({
         onChange={(event) => onChange(event.target.value)}
         placeholder={field.placeholder}
         rows={3}
+        className="field"
+      />
+    );
+  }
+
+  if (field.type === "list") {
+    // Nilainya tetap array; ditampilkan sebagai teks berkoma supaya ringkas.
+    // Baris kosong tidak dibuang di sini — kalau dibuang, koma yang baru
+    // diketik akan langsung hilang. Pembersihannya dilakukan di server saat
+    // menyimpan.
+    const items = Array.isArray(value) ? (value as unknown[]).map((entry) => String(entry)) : [];
+
+    return (
+      <input
+        type="text"
+        value={items.join(", ")}
+        onChange={(event) =>
+          onChange(
+            event.target.value.split(",").map((entry) => entry.trim()),
+          )
+        }
+        placeholder={field.placeholder}
         className="field"
       />
     );

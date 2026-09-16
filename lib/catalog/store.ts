@@ -5,6 +5,7 @@ import { isSupabaseConfigured, supabaseFetch } from "@/lib/supabase/config";
 import type { CatalogGame, CatalogPack, GameCategory, GamePlatform } from "@/types";
 
 import { DEFAULT_GAMES, defaultPacksFor } from "./defaults";
+import { readIdFields, stringifySecondOptions } from "./id-fields";
 
 interface GameRow {
   slug: string;
@@ -15,6 +16,10 @@ interface GameRow {
   rating: number | string;
   is_active: boolean;
   coming_soon: boolean;
+  id_label: string;
+  second_kind: string;
+  second_label: string;
+  second_options: string;
   sort_order: number;
 }
 
@@ -38,6 +43,12 @@ const toGame = (row: GameRow): CatalogGame => ({
   // Baris lama yang belum punya nilai dianggap aktif.
   isActive: row.is_active !== false,
   comingSoon: row.coming_soon === true,
+  ...readIdFields({
+    idLabel: row.id_label,
+    secondKind: row.second_kind,
+    secondLabel: row.second_label,
+    secondOptions: row.second_options,
+  }),
   sortOrder: row.sort_order ?? 0,
 });
 
@@ -150,6 +161,10 @@ export async function writeGames(games: CatalogGame[]): Promise<void> {
     rating: game.rating,
     is_active: game.isActive,
     coming_soon: game.comingSoon,
+    id_label: game.idLabel,
+    second_kind: game.secondKind,
+    second_label: game.secondLabel,
+    second_options: stringifySecondOptions(game.secondOptions),
     sort_order: index,
     updated_at: new Date().toISOString(),
   }));

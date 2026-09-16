@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { endSession, isAuthEnabled, isAuthorized, startSession } from "@/lib/admin/auth";
 import { CONTENT_TAG } from "@/lib/cache";
 import { writeGames, writePacks } from "@/lib/catalog/store";
+import { readIdFields } from "@/lib/catalog/id-fields";
 import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
 import { isPaymentMethodReady } from "@/lib/payments/shared";
 import { writePaymentMethods } from "@/lib/payments/store";
@@ -81,6 +82,7 @@ function normalizeGame(raw: unknown, index: number): CatalogGame | null {
     // Tidak diisi dianggap aktif, jadi game lama tetap tampil.
     isActive: raw.isActive !== false,
     comingSoon: raw.comingSoon === true,
+    ...readIdFields(raw),
     sortOrder: index,
   };
 }

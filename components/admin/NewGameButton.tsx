@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { GAME_CATEGORIES, GAME_PLATFORMS } from "@/data/games";
+import { DEFAULT_ID_LABEL, DEFAULT_SECOND_LABEL } from "@/lib/catalog/id-fields";
 import { GAME_IMAGE_FALLBACK } from "@/lib/media";
 import type { ActionResult, CatalogGame } from "@/types";
 
@@ -29,6 +30,10 @@ export function NewGameButton({ games, action }: NewGameButtonProps) {
       rating: 5,
       isActive: false,
       comingSoon: false,
+      idLabel: DEFAULT_ID_LABEL,
+      secondKind: "none",
+      secondLabel: DEFAULT_SECOND_LABEL,
+      secondOptions: [],
       sortOrder: games.length,
     };
 

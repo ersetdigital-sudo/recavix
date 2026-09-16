@@ -35,7 +35,6 @@ export type CheckoutResult =
  */
 export async function createCheckoutOrder(input: CheckoutInput): Promise<CheckoutResult> {
   const accountId = input.accountId.trim();
-  if (!accountId) return { ok: false, message: "User ID wajib diisi." };
 
   try {
     const [games, payments, content] = await Promise.all([
@@ -50,6 +49,15 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
     if (!game) return { ok: false, message: "Game tidak ditemukan atau sudah tidak aktif." };
     if (game.comingSoon) {
       return { ok: false, message: "Game ini belum dibuka. Nantikan ya." };
+    }
+
+    // Nama kolomnya mengikuti konfigurasi game: Mobile Legends meminta Zone ID,
+    // Genshin Impact memilih Server, PUBG/Free Fire/Roblox cukup satu kolom.
+    if (!accountId) return { ok: false, message: `${game.idLabel} wajib diisi.` };
+
+    const zoneId = input.zoneId.trim();
+    if (game.secondKind !== "none" && !zoneId) {
+      return { ok: false, message: `${game.secondLabel} wajib diisi.` };
     }
 
     // Harga dicari dari daftar paket milik game itu sendiri, bukan game lain.
@@ -75,7 +83,7 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
       itemLabel: `${pack.diamonds} Diamond`,
       diamonds: pack.diamonds,
       accountId,
-      zoneId: input.zoneId.trim() || null,
+      zoneId: zoneId || null,
       contact: input.contact.trim() || null,
       paymentMethod: payment.name,
       paymentMethodId: payment.id,

@@ -2,6 +2,8 @@ import { diamondPacks } from "@/data/diamond-packs";
 import { games } from "@/data/games";
 import type { CatalogGame, CatalogPack } from "@/types";
 
+import { readIdFields } from "./id-fields";
+
 /**
  * Isi bawaan yang dibaca langsung dari `data/`.
  *
@@ -13,6 +15,7 @@ export const DEFAULT_GAMES: CatalogGame[] = games.map((game, index) => ({
   ...game,
   isActive: true,
   comingSoon: game.comingSoon === true,
+  ...readIdFields(game),
   sortOrder: index,
 }));
 

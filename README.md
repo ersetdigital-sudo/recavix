@@ -21,6 +21,9 @@ dengan Next.js App Router, animasi halus, dan SEO teknis yang lengkap.
 
 - **Katalog 6 game** — PUBG Mobile, Mobile Legends, Free Fire, Magic Chess, Honor of Kings,
   dan Roblox. Menambah game dari dashboard langsung membuatnya bisa dijual.
+- **Kolom ID per game** — tiap game punya kebutuhan sendiri, diatur dari dashboard:
+  Mobile Legends & Magic Chess `User ID` + `Zone ID`, Genshin Impact `UID` + pilihan
+  `Server`, sedangkan PUBG Mobile / Free Fire `Player ID` dan Roblox `Username` (satu kolom).
 - **Game "Segera Hadir"** — game yang belum dibuka tetap tampil di beranda dan katalog dengan
   badge, tapi tidak bisa dipilih di checkout. Diatur per game dari dashboard.
 - **Filter mengikuti katalog** — panel filter hanya menampilkan kategori/platform yang benar-benar
@@ -288,6 +291,10 @@ ke camelCase di `lib/*/store.ts`.
 | `rating` | numeric | 1–5 |
 | `is_active` | boolean | `false` = disembunyikan dari situs, datanya tetap tersimpan |
 | `coming_soon` | boolean | `true` = tampil dengan badge "Segera Hadir" dan tidak bisa dipilih di checkout |
+| `id_label` | text | Label kolom ID pertama di checkout, mis. `User ID` / `UID` / `Player ID` / `Username` |
+| `second_kind` | text | Kolom kedua: `none` (tidak ada), `text` (isian bebas), atau `select` (pilihan) |
+| `second_label` | text | Label kolom kedua, mis. `Zone ID` atau `Server` |
+| `second_options` | text | Pilihan untuk `second_kind = select`, dipisah koma (mis. `Asia, America, Europe, TW/HK/MO`) |
 | `sort_order` | integer | Urutan tampil |
 | `updated_at` | timestamptz | |
 

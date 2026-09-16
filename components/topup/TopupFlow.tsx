@@ -89,7 +89,11 @@ export function TopupFlow({
     event.preventDefault();
 
     if (!uid.trim()) {
-      setError("Masukkan User ID akun game kamu dulu.");
+      setError(`Masukkan ${game.idLabel} akun game kamu dulu.`);
+      return;
+    }
+    if (game.secondKind !== "none" && !zone.trim()) {
+      setError(`${game.secondLabel} wajib diisi dulu ya.`);
       return;
     }
     if (!pack || packIndex === null) {
@@ -152,8 +156,9 @@ export function TopupFlow({
             onChange={(event) => {
               const next = event.target.value;
               setGameSlug(next);
-              // Nominal game sebelumnya tidak berlaku untuk game yang baru.
+              // Nominal dan kolom ID kedua milik game sebelumnya tidak berlaku lagi.
               setPackIndex(null);
+              setZone("");
               // URL ikut berubah supaya game yang sedang dilihat bisa dibagikan
               // dan tidak balik ke game pertama saat halaman dimuat ulang.
               router.replace(`/topup?game=${encodeURIComponent(next)}`, { scroll: false });
@@ -175,35 +180,68 @@ export function TopupFlow({
       >
         <div className="space-y-6">
           <StepCard step={1} title="Masukkan Data Akun">
-            <div className="grid gap-4 sm:grid-cols-2">
+            {/*
+              Kolomnya beda per game dan datang dari katalog: Mobile Legends &
+              Magic Chess butuh User ID + Zone ID, Genshin Impact UID + pilihan
+              Server, PUBG/Free Fire/Roblox cukup satu kolom.
+            */}
+            <div
+              className={cn(
+                "grid gap-4",
+                game.secondKind === "none" ? "sm:max-w-[340px]" : "sm:grid-cols-2",
+              )}
+            >
               <div>
                 <label htmlFor="uid" className="mb-1.5 block text-[13px] font-semibold">
-                  User ID
+                  {game.idLabel}
                 </label>
                 <input
                   id="uid"
                   className="field"
-                  placeholder="Contoh: 123456789"
+                  placeholder={`Masukkan ${game.idLabel}`}
                   value={uid}
                   onChange={(event) => setUid(event.target.value)}
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="zone" className="mb-1.5 block text-[13px] font-semibold">
-                  Zone ID
-                </label>
-                <input
-                  id="zone"
-                  className="field"
-                  placeholder="Contoh: 1234"
-                  value={zone}
-                  onChange={(event) => setZone(event.target.value)}
-                />
-              </div>
+
+              {game.secondKind !== "none" ? (
+                <div>
+                  <label htmlFor="zone" className="mb-1.5 block text-[13px] font-semibold">
+                    {game.secondLabel}
+                  </label>
+                  {game.secondKind === "select" ? (
+                    <select
+                      id="zone"
+                      className="field"
+                      value={zone}
+                      onChange={(event) => setZone(event.target.value)}
+                      required
+                    >
+                      <option value="">Pilih {game.secondLabel}</option>
+                      {game.secondOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="zone"
+                      className="field"
+                      placeholder={`Masukkan ${game.secondLabel}`}
+                      value={zone}
+                      onChange={(event) => setZone(event.target.value)}
+                      required
+                    />
+                  )}
+                </div>
+              ) : null}
             </div>
             <p className="mt-3 text-xs opacity-65">
-              User ID &amp; Zone ID bisa dilihat di menu profil dalam game.
+              {game.idLabel}
+              {game.secondKind !== "none" ? ` dan ${game.secondLabel}` : ""} bisa dilihat di
+              dalam game.
             </p>
           </StepCard>
 

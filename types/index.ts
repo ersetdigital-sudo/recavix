@@ -16,6 +16,14 @@ export type GamePlatform =
   | "Playstation 5"
   | "X-Box";
 
+/**
+ * Bentuk kolom ID kedua di form checkout.
+ *
+ * Tiap game butuh data berbeda: Mobile Legends memakai Zone ID, Genshin Impact
+ * memilih Server, sedangkan PUBG/Free Fire/Roblox cukup satu kolom ID saja.
+ */
+export type SecondIdKind = "none" | "text" | "select";
+
 export interface Game {
   slug: string;
   name: string;
@@ -29,6 +37,14 @@ export interface Game {
    * badge "Segera Hadir", tapi tidak bisa dipilih di checkout.
    */
   comingSoon?: boolean;
+  /** Label kolom ID pertama, mis. "User ID" / "UID" / "Player ID" / "Username". */
+  idLabel?: string;
+  /** Kolom kedua: tidak ada, isian bebas, atau pilihan. */
+  secondKind?: SecondIdKind;
+  /** Label kolom kedua, mis. "Zone ID" atau "Server". */
+  secondLabel?: string;
+  /** Pilihan yang muncul saat secondKind = "select". */
+  secondOptions?: string[];
 }
 
 export interface DiamondPack {
@@ -44,6 +60,11 @@ export interface CatalogGame extends Game {
   /** Sudah dinormalkan, jadi selalu ada nilainya. */
   comingSoon: boolean;
   sortOrder: number;
+  /** Sudah dinormalkan dari `Game` — selalu terisi. */
+  idLabel: string;
+  secondKind: SecondIdKind;
+  secondLabel: string;
+  secondOptions: string[];
 }
 
 /** Paket diamond seperti yang tersimpan di katalog — selalu milik satu game. */
