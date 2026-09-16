@@ -10,6 +10,7 @@ interface GameCardProps {
   game: Game;
   /** Show "category · platform" meta line (used on the full catalogue). */
   showMeta?: boolean;
+  /** Default: checkout dengan game ini langsung terpilih. */
   href?: string;
 }
 
@@ -17,10 +18,14 @@ const CARD_BASE = "group block rounded-2xl border-[1.5px] border-peach bg-white 
 const CARD_READY = "transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(79,122,74,0.18)]";
 const CTA_BASE = "mt-2 block rounded-[9px] px-2 py-[7px] text-center text-[13px] font-semibold";
 
-export function GameCard({ game, showMeta = false, href = "/topup" }: GameCardProps) {
+export function GameCard({ game, showMeta = false, href }: GameCardProps) {
   // Game yang belum rilis tetap tampil supaya katalog terasa lengkap, tapi
   // kartunya tidak bisa diklik ke checkout.
   const comingSoon = game.comingSoon === true;
+
+  // Slug dibawa lewat URL supaya checkout membuka game yang diklik. Tanpa ini
+  // semua kartu mendarat di game pertama katalog.
+  const target = href ?? `/topup?game=${encodeURIComponent(game.slug)}`;
 
   const body = (
     <>
@@ -72,7 +77,7 @@ export function GameCard({ game, showMeta = false, href = "/topup" }: GameCardPr
   }
 
   return (
-    <Link href={href} className={cn(CARD_BASE, CARD_READY)}>
+    <Link href={target} className={cn(CARD_BASE, CARD_READY)}>
       {body}
     </Link>
   );

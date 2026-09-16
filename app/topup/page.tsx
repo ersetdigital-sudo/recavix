@@ -23,8 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function TopupPage() {
-  const [games, packsByGame, methods, content] = await Promise.all([
+interface PageProps {
+  searchParams: Promise<{ game?: string }>;
+}
+
+export default async function TopupPage({ searchParams }: PageProps) {
+  const [{ game: requestedGame }, games, packsByGame, methods, content] = await Promise.all([
+    searchParams,
     readActiveGames(),
     readActivePacksByGame(),
     getCachedPaymentMethods(),
@@ -34,6 +39,15 @@ export default async function TopupPage() {
   // Hanya game yang sudah dibuka yang bisa dipesan. Game "Segera Hadir" tetap
   // tampil di beranda dan katalog, tapi tidak ikut di selector checkout.
   const buyableGames = games.filter((game) => !game.comingSoon);
+
+  // Game dari URL dipakai kalau memang bisa dibeli — itulah yang membuat kartu
+  // di beranda/katalog membuka checkout game yang diklik. Kalau slug-nya tidak
+  // valid atau game-nya belum dibuka, jatuh ke game pertama supaya halaman
+  // tetap bisa dipakai.
+  const initialGameSlug =
+    requestedGame && buyableGames.some((game) => game.slug === requestedGame)
+      ? requestedGame
+      : (buyableGames[0]?.slug ?? "");
 
   const checkoutPacks = Object.fromEntries(
     buyableGames.map((game) => [game.slug, packsByGame[game.slug] ?? []]),
@@ -80,6 +94,7 @@ export default async function TopupPage() {
           {available ? (
             <TopupFlow
               games={buyableGames}
+              initialGameSlug={initialGameSlug}
               packsByGame={checkoutPacks}
               methods={methods}
               promos={content.promoCodes}

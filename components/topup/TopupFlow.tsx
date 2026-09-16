@@ -17,6 +17,8 @@ import type { CatalogGame, CatalogPack, PaymentMethod, PromoCode } from "@/types
 interface TopupFlowProps {
   /** Game yang boleh dipilih di checkout — sudah disaring dari katalog aktif. */
   games: CatalogGame[];
+  /** Game yang langsung terpilih saat halaman dibuka (dari `?game=` di URL). */
+  initialGameSlug?: string;
   /** Paket diamond aktif per slug game — harga tiap game diatur sendiri di dashboard. */
   packsByGame: Record<string, CatalogPack[]>;
   /** Metode pembayaran aktif. */
@@ -28,10 +30,16 @@ interface TopupFlowProps {
   promos: PromoCode[];
 }
 
-export function TopupFlow({ games, packsByGame, methods, promos }: TopupFlowProps) {
+export function TopupFlow({
+  games,
+  initialGameSlug,
+  packsByGame,
+  methods,
+  promos,
+}: TopupFlowProps) {
   const router = useRouter();
 
-  const [gameSlug, setGameSlug] = useState(games[0]?.slug ?? "");
+  const [gameSlug, setGameSlug] = useState(initialGameSlug || games[0]?.slug || "");
   const [uid, setUid] = useState("");
   const [zone, setZone] = useState("");
   const [packIndex, setPackIndex] = useState<number | null>(null);
@@ -142,9 +150,13 @@ export function TopupFlow({ games, packsByGame, methods, promos }: TopupFlowProp
             id="game-select"
             value={gameSlug}
             onChange={(event) => {
-              setGameSlug(event.target.value);
+              const next = event.target.value;
+              setGameSlug(next);
               // Nominal game sebelumnya tidak berlaku untuk game yang baru.
               setPackIndex(null);
+              // URL ikut berubah supaya game yang sedang dilihat bisa dibagikan
+              // dan tidak balik ke game pertama saat halaman dimuat ulang.
+              router.replace(`/topup?game=${encodeURIComponent(next)}`, { scroll: false });
             }}
             className="field max-w-[220px]"
           >
